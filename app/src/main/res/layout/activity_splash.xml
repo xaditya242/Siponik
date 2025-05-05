@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <!-- Base -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/hijau_muda">
+
+        <!-- Gambar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/logo"
+                    android:layout_gravity="bottom" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:layout_weight="0.2">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SIPONIK"
+                    android:textStyle="bold"
+                    android:textSize="40sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center_horizontal|bottom" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Keterangan -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:layout_weight="0.1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sistem Monitoring dan Kendali Tanaman \nHidroponik Berbasis IoT"
+                android:fontFamily="@font/poppins_regular"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:gravity="bottom|center_horizontal"
+                android:layout_marginBottom="0dp" />
+        </LinearLayout>
+
+        <!-- Tombol Mulai -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/startButton"
+                    android:layout_width="250dp"
+                    android:layout_height="40dp"
+                    android:backgroundTint="@color/hijau_tua"
+                    app:cardCornerRadius="20dp"
+                    android:layout_marginTop="15dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Mulai"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="20dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"/>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
