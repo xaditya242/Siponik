@@ -1,0 +1,3 @@
+interface FirebaseRefreshable {
+    fun refreshFirebaseData()
+}

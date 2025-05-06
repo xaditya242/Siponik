@@ -9,6 +9,8 @@ import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Button
 import android.widget.ProgressBar
@@ -25,6 +27,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import kotlin.system.exitProcess
 
 class WifiFormActivity : AppCompatActivity() {
 
@@ -39,7 +42,7 @@ class WifiFormActivity : AppCompatActivity() {
     private lateinit var statusTextView: TextView
 
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
-    private val CONFIGURATION_TIMEOUT_MS: Long = 25000
+    private val CONFIGURATION_TIMEOUT_MS: Long = 30000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,7 +92,7 @@ class WifiFormActivity : AppCompatActivity() {
             wifiManager.enableNetwork(networkId, true)
             wifiManager.reconnect()
 
-            Toast.makeText(this, "Menghubungkan ke ${espSSID}...", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(this, "Menghubungkan ke ${espSSID}...", Toast.LENGTH_SHORT).show()
 
             // Pantau status koneksi
             val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -100,7 +103,7 @@ class WifiFormActivity : AppCompatActivity() {
             networkCallback = object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    Log.d("WifiConfig", "Terhubung ke ${espSSID}")
+//                    Log.d("WifiConfig", "Terhubung ke ${espSSID}")
                     runOnUiThread {
                         statusTextView.text = "Terhubung ke ${espSSID}, mengirim konfigurasi..."
                     }
@@ -174,14 +177,21 @@ class WifiFormActivity : AppCompatActivity() {
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
                     Log.d("WifiConfig", "Respon dari ESP: $response")
                     success = true
+                    wifiManager.disconnect()
                     runOnUiThread {
                         Toast.makeText(this@WifiFormActivity, "Konfigurasi WiFi berhasil dikirim ke ESP", Toast.LENGTH_LONG).show()
                         progressBar.visibility = ProgressBar.INVISIBLE
                         submitButton.isEnabled = true
-                        val resultIntent = Intent()
-                        resultIntent.putExtra("wifi_config_success", true)
-                        setResult(RESULT_OK, resultIntent)
-                        finish()
+
+                        // Restart aplikasi setelah delay singkat
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val packageManager = packageManager
+                            val intent = packageManager.getLaunchIntentForPackage(packageName)
+                            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(intent)
+                            finishAffinity() // Tutup semua Activity
+                            exitProcess(0)   // Paksa aplikasi keluar, akan restart otomatis
+                        }, 1500)
                     }
                 } else {
                     Log.e("WifiConfig", "Gagal mengirim konfigurasi. Kode respons: $responseCode")

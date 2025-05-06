@@ -1,5 +1,6 @@
 package com.panik.siponik
 
+import FirebaseRefreshable
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,12 +33,13 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class SettingFragment : Fragment() {
+class SettingFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var auth: FirebaseAuth
     private lateinit var btnLogout: TextView
 
     private lateinit var tvIDESP: TextView
     private lateinit var tvUserID: TextView
+    private lateinit var tvSSID: TextView
 
     private lateinit var sharedPreferences: SharedPreferences
     private val PREFS_NAME = "AppPrefs"
@@ -46,6 +49,9 @@ class SettingFragment : Fragment() {
     private lateinit var adapter: ArrayAdapter<String>
     private val wifiScanResults = mutableListOf<ScanResult>()
     private lateinit var linearWifi: LinearLayout
+
+    private lateinit var progressBarWifi: ProgressBar
+
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 123
     private lateinit var changeWifiButton: CardView
@@ -84,13 +90,18 @@ class SettingFragment : Fragment() {
     private fun startWifiScan() {
         adapter.clear()
         wifiScanResults.clear()
-        requireActivity().registerReceiver(wifiScanReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        progressBarWifi.visibility = View.VISIBLE
+        requireActivity().registerReceiver(
+            wifiScanReceiver,
+            IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+        )
         wifiManager.startScan()
         Toast.makeText(requireContext(), "Memindai jaringan WiFi...", Toast.LENGTH_SHORT).show()
     }
 
     private fun scanSuccess() {
         requireActivity().unregisterReceiver(wifiScanReceiver)
+        progressBarWifi.visibility = View.GONE
         val results = wifiManager?.scanResults ?: emptyList()
         wifiScanResults.addAll(results)
         val ssids = results.map { it.SSID }
@@ -100,6 +111,7 @@ class SettingFragment : Fragment() {
 
     private fun scanFailure() {
         requireActivity().unregisterReceiver(wifiScanReceiver)
+        progressBarWifi.visibility = View.GONE
         Toast.makeText(requireContext(), "Gagal memindai jaringan WiFi", Toast.LENGTH_SHORT).show()
     }
 
@@ -132,12 +144,13 @@ class SettingFragment : Fragment() {
         btnLogout = view.findViewById(R.id.btnLogout)
         tvIDESP = view.findViewById(R.id.tvIDESP)
         tvUserID = view.findViewById(R.id.tvUserID)
+        tvSSID = view.findViewById(R.id.tvSSID)
 
         linearWifi = view.findViewById(R.id.linearWifi)
-//        linearWifi.visibility = View.INVISIBLE
         wifiManager = requireActivity().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         wifiList = view.findViewById(R.id.wifiList)
 
+        progressBarWifi = view.findViewById(R.id.progressBarWifi)
 
         adapter = ArrayAdapter(
             requireContext(),
@@ -150,7 +163,13 @@ class SettingFragment : Fragment() {
 
         changeWifiButton = view.findViewById(R.id.changeWifiButton)
         changeWifiButton.setOnClickListener {
+            if (!wifiManager.isWifiEnabled) {
+                Toast.makeText(requireContext(), "WiFi tidak aktif. Silakan aktifkan WiFi terlebih dahulu.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
             linearWifi.visibility = View.VISIBLE
+
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -165,6 +184,7 @@ class SettingFragment : Fragment() {
             }
         }
 
+
         wifiList.setOnItemClickListener { _, _, position, _ ->
             val selectedSSID = wifiScanResults[position].SSID
             connectToESP8266AP(selectedSSID)
@@ -173,36 +193,7 @@ class SettingFragment : Fragment() {
         // Inisialisasi SharedPreferences
         sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-        val currentUser = auth.currentUser
-        // Referensi database untuk mendengarkan perubahan data secara real-time
-        val userId = currentUser?.uid
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
-
-        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (child in snapshot.children) {
-                    val userIdFromDb = child.child("UserInfo/userId").value.toString()
-                    if (userIdFromDb == userId) {
-                        val userPath = child.key // Dapatkan key dari user yang sesuai
-
-                        if (userPath != null) {
-                            val dataUser = child.child("UserInfo/ID ESP").value.toString()
-                            val dataEmail = child.child("UserInfo/email").value.toString()
-                            tvIDESP.text = dataUser
-                            tvUserID.text = dataEmail
-                        }
-                        break // Hentikan loop setelah menemukan user yang cocok
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT).show()
-                Log.e("FirebaseError", "onCancelled: ${error.message}")
-
-
-            }
-        })
+        refreshFirebaseData()
         // Logout
         btnLogout.setOnClickListener{
             val dialog = CustomDialogFragment(
@@ -237,4 +228,37 @@ class SettingFragment : Fragment() {
 //
         }
     }
+
+    override fun refreshFirebaseData() {
+        val currentUser = auth.currentUser
+        val userId = currentUser?.uid
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
+
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (child in snapshot.children) {
+                    val userIdFromDb = child.child("UserInfo/userId").value.toString()
+                    if (userIdFromDb == userId) {
+                        val userPath = child.key // Dapatkan key dari user yang sesuai
+
+                        if (userPath != null) {
+                            val dataUser = child.child("UserInfo/ID ESP").value.toString()
+                            val dataEmail = child.child("UserInfo/email").value.toString()
+                            val dataSSID = child.child("Data/WifiSSID").value.toString()
+                            tvIDESP.text = dataUser
+                            tvUserID.text = dataEmail
+                            tvSSID.text = dataSSID
+                        }
+                        break // Hentikan loop setelah menemukan user yang cocok
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("FirebaseError", "onCancelled: ${error.message}")
+            }
+        })
+    }
+
 }

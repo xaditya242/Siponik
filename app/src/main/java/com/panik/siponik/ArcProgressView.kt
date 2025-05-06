@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import kotlin.math.*
 
@@ -14,16 +15,16 @@ class ArcProgressView @JvmOverloads constructor(
     var progress = 0f            // Suhu sekarang
     var max = 50f                // Suhu maksimum
 
-    var baseArcColor = Color.LTGRAY
-    var baseArcWidth = 20f
+    var baseArcColor = ContextCompat.getColor(context, R.color.hijau_muda)
+    var baseArcWidth = 28f
 
-    var progressArcColor = Color.BLUE
-    var progressArcWidth = 20f
+    var progressArcColor = ContextCompat.getColor(context, R.color.hijau_tua)
+    var progressArcWidth = 15f
 
-    var capCircleRadius = 12f
-    var capCircleColor = Color.BLUE
+    var capCircleRadius = 25f
+    var capCircleColor = ContextCompat.getColor(context, R.color.hijau_tua)
 
-    var textColor = Color.BLACK
+    var textColor = ContextCompat.getColor(context, R.color.hijau_muda)
     var textSize = 40f
     var textFont: Typeface? = null
 

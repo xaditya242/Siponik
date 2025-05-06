@@ -48,7 +48,8 @@ class InputIdESPActivity : AppCompatActivity() {
                             "Nutrisi" to 0,
                             "pH" to 0,
                             "Suhu" to 0,
-                            "KetinggianAir" to 0
+                            "KetinggianAir" to 0,
+                            "WifiSSID" to "-"
                         )
 
                         dbRef.child("UserInfo").setValue(userInfo)

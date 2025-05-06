@@ -1,5 +1,6 @@
 package com.panik.siponik
 
+import FirebaseRefreshable
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,10 +16,11 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), FirebaseRefreshable  {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var tvNutrisi: TextView
@@ -31,6 +33,10 @@ class HomeFragment : Fragment() {
     private var suhu: Float = 0f
     private var ketinggianAir: Float = 0f
     private lateinit var arcProgress: ArcProgressView
+
+    private lateinit var databaseReference: DatabaseReference
+    private var dataListener: ValueEventListener? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -121,10 +127,17 @@ class HomeFragment : Fragment() {
         }
         // Referensi database untuk mendengarkan perubahan data secara real-time
         val userId = currentUser.uid
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
+        databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
+        refreshFirebaseData()
+    }
 
-//         Mendengarkan perubahan data secara real-time
-        databaseReference.addValueEventListener(object : ValueEventListener {
+    override fun refreshFirebaseData() {
+        // detach listener lama
+        dataListener?.let { databaseReference.removeEventListener(it) }
+
+        // re-attach listener baru
+        val userId = auth.currentUser?.uid ?: return
+        dataListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (child in snapshot.children) {
                     val userIdFromDb = child.child("UserInfo/userId").value.toString()
@@ -145,37 +158,40 @@ class HomeFragment : Fragment() {
                         tvpH.text = datapH
                         tvTinggi.text = " $dataKetinggianAir %"
 
-                        val baseColor = ContextCompat.getColor(requireContext(), R.color.hijau_muda)
-                        val progressColor = ContextCompat.getColor(requireContext(), R.color.hijau_tua)
-                        val capColor = ContextCompat.getColor(requireContext(), R.color.hijau_tua)
-                        var colorText = ContextCompat.getColor(requireContext(), R.color.hijau_muda)
+                        context?.let { ctx ->
+                            val baseColor = ContextCompat.getColor(ctx, R.color.hijau_muda)
+                            val progressColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
+                            val capColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
+                            val colorText = ContextCompat.getColor(ctx, R.color.hijau_muda)
 
-                        arcProgress.apply {
-                            baseArcColor = baseColor
-                            baseArcWidth = 28f
+                            arcProgress.apply {
+                                baseArcColor = baseColor
+                                baseArcWidth = 28f
 
-                            progressArcColor = progressColor
-                            progressArcWidth = 15f
+                                progressArcColor = progressColor
+                                progressArcWidth = 15f
 
-                            capCircleColor = capColor
-                            capCircleRadius = 25f
+                                capCircleColor = capColor
+                                capCircleRadius = 25f
 
-                            textColor = colorText
-                            textSize = 40f
+                                textColor = colorText
+                                textSize = 40f
 
-                            textFont = ResourcesCompat.getFont(requireContext(), R.font.poppins_bold)
+                                textFont = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
 
-                            setMaxValue(50f)
-                            setProgressValue(suhu)
+                                setMaxValue(50f)
+                                setProgressValue(suhu)
+                            }
                         }
+
                         break
                     }
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                //tvData.text = "Failed to load data: ${error.message}"
-            }
-        })
+            override fun onCancelled(error: DatabaseError) {}
+        }
+
+        databaseReference.addValueEventListener(dataListener as ValueEventListener)
     }
 }

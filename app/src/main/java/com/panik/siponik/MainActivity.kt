@@ -1,7 +1,12 @@
 package com.panik.siponik
 
+import FirebaseRefreshable
 import android.animation.ObjectAnimator
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -41,6 +46,14 @@ class MainActivity : AppCompatActivity() {
         Log.d("DEBUG", "ID ESP dari session: $espId")
 
         val notifRef = FirebaseDatabase.getInstance().getReference("Siponik/$espId/Notifikasi")
+
+        val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(connectivityReceiver, filter)
+
+        var currentFragment = supportFragmentManager.findFragmentById(R.id.container)
+        if (currentFragment is FirebaseRefreshable) {
+            currentFragment.refreshFirebaseData()
+        }
 
         notifRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -88,6 +101,8 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE)
         return sharedPref.getString("espId", "") ?: ""
     }
+
+
 
     private fun moveIndicator(toHome: Boolean) {
         val targetX = if (toHome) 0f else activeIndicator.width.toFloat()
@@ -156,5 +171,24 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Gagal memperbarui notifikasi", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private val connectivityReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetworkInfo
+            val isConnected = activeNetwork?.isConnectedOrConnecting == true
+
+            if (isConnected) {
+                FirebaseDatabase.getInstance().goOffline()
+                FirebaseDatabase.getInstance().goOnline()
+                Log.d("FirebaseReconnect", "Internet reconnected, Firebase refreshed.")
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(connectivityReceiver)
     }
 }
