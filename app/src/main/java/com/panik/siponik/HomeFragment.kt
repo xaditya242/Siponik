@@ -32,7 +32,6 @@ class HomeFragment : Fragment() {
     private var ketinggianAir: Float = 0f
     private lateinit var arcProgress: ArcProgressView
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -99,8 +98,6 @@ class HomeFragment : Fragment() {
         // Tambahkan container ke CardView
         cardView.addView(container)
     }
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
