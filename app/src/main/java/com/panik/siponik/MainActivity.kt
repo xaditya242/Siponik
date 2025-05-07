@@ -19,6 +19,7 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
@@ -28,8 +29,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var base: LinearLayout
     private lateinit var homeIcon: ImageView
     private lateinit var settingsIcon: ImageView
+
     private lateinit var btNotif: ImageView
     private lateinit var badgeNotifMain: TextView
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +42,24 @@ class MainActivity : AppCompatActivity() {
         homeIcon = findViewById(R.id.homeIcon)
         settingsIcon = findViewById(R.id.settingIcon)
         base = findViewById(R.id.Base)
+
         btNotif = findViewById(R.id.btn_notif)
         badgeNotifMain = findViewById(R.id.badge_notif)
 
         val espId = getEspIdFromSession() // Ambil ID ESP dari session
         Log.d("DEBUG", "ID ESP dari session: $espId")
 
-        val notifRef = FirebaseDatabase.getInstance().getReference("Siponik/$espId/Notifikasi")
+        database = FirebaseDatabase.getInstance().getReference("Siponik/$espId/Notifikasi")
+        updateNotificationBadge()
+
+        btNotif.setOnClickListener {
+            // Tandai semua notifikasi sebagai telah dibaca
+            markAllNotificationsAsRead()
+
+            // Pindah ke NotificationActivity
+            val intent = Intent(this, NotificationActivity::class.java)
+            startActivity(intent)
+        }
 
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         registerReceiver(connectivityReceiver, filter)
@@ -54,23 +68,6 @@ class MainActivity : AppCompatActivity() {
         if (currentFragment is FirebaseRefreshable) {
             currentFragment.refreshFirebaseData()
         }
-
-        notifRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val count = snapshot.childrenCount.toInt()
-
-                if (count > 0) {
-                    badgeNotifMain.visibility = View.VISIBLE
-                    badgeNotifMain.text = count.toString()
-                } else {
-                    badgeNotifMain.visibility = View.GONE
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@MainActivity, "Gagal mengambil data notifikasi", Toast.LENGTH_SHORT).show()
-            }
-        })
 
 
         // Load fragment pertama secara default
@@ -90,19 +87,12 @@ class MainActivity : AppCompatActivity() {
             replaceFragment(SettingFragment(), false)
             moveIndicator(false)
         }
-
-        btNotif.setOnClickListener {
-            startActivity(Intent(this, NotificationActivity::class.java))
-            finish()
-        }
     }
 
     private fun getEspIdFromSession(): String {
         val sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE)
         return sharedPref.getString("espId", "") ?: ""
     }
-
-
 
     private fun moveIndicator(toHome: Boolean) {
         val targetX = if (toHome) 0f else activeIndicator.width.toFloat()
@@ -148,29 +138,52 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // **Panggil update notifikasi saat kembali dari NotificationActivity**
-        updateNotificationBadge()
+        if (::database.isInitialized) {
+            updateNotificationBadge()
+        }
     }
 
     private fun updateNotificationBadge() {
-        val espId = getEspIdFromSession()
-        val notifRef = FirebaseDatabase.getInstance().getReference("Siponik/$espId/Notifikasi")
-
-        notifRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val count = snapshot.childrenCount.toInt()
-                if (count > 0) {
+                // Hitung jumlah notifikasi yang belum dibaca (isRead = false)
+                var unreadCount = 0
+                for (notifSnapshot in snapshot.children) {
+                    val isRead = notifSnapshot.child("isRead").getValue(Boolean::class.java) ?: false
+                    if (!isRead) {
+                        unreadCount++
+                    }
+                }
+
+                // Update badge UI
+                if (unreadCount > 0) {
                     badgeNotifMain.visibility = View.VISIBLE
-                    badgeNotifMain.text = count.toString()
+                    badgeNotifMain.text = unreadCount.toString()
                 } else {
                     badgeNotifMain.visibility = View.GONE
                 }
+
+                // Simpan jumlah ke shared preferences untuk konsistensi dengan NotificationActivity
+                val pref = getSharedPreferences("NotificationCount", MODE_PRIVATE)
+                pref.edit().putInt("unread_count", unreadCount).apply()
+
+                Log.d("MainActivity", "Unread notifications: $unreadCount")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@MainActivity, "Gagal memperbarui notifikasi", Toast.LENGTH_SHORT).show()
+                Log.e("MainActivity", "Database error: ${error.message}")
             }
         })
+    }
+
+    private fun markAllNotificationsAsRead() {
+        database.get().addOnSuccessListener { snapshot ->
+            for (notifSnapshot in snapshot.children) {
+                notifSnapshot.ref.child("isRead").setValue(true)
+            }
+        }.addOnFailureListener { error ->
+            Log.e("MainActivity", "Failed to mark notifications as read: ${error.message}")
+        }
     }
 
     private val connectivityReceiver = object : BroadcastReceiver() {
@@ -191,4 +204,5 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         unregisterReceiver(connectivityReceiver)
     }
+
 }

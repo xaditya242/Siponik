@@ -83,8 +83,6 @@ class NotificationActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
                 previousCount = currentCount // Simpan count sekarang untuk perbandingan berikutnya
             }
 
@@ -102,6 +100,9 @@ class NotificationActivity : AppCompatActivity() {
         btnClear.setOnClickListener {
             database.removeValue().addOnSuccessListener {
                 Toast.makeText(this, "Semua notifikasi dibersihkan", Toast.LENGTH_SHORT).show()
+                notifList.clear()
+                adapter.notifyDataSetChanged()
+                updateBadge()
             }
         }
 
@@ -121,28 +122,38 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     private fun updateBadge() {
-        if (notifList.isEmpty()) {
-            badgeNotif.visibility = View.GONE
-        } else {
+        // Hitung jumlah notifikasi yang belum dibaca (isRead = false)
+        val unreadCount = notifList.count { !it.isRead }
+
+        if (unreadCount > 0) {
             badgeNotif.visibility = View.VISIBLE
-            badgeNotif.text = notifList.size.toString()
+            badgeNotif.text = unreadCount.toString()
+        } else {
+            badgeNotif.visibility = View.GONE
         }
+
+        // Simpan jumlah unread ke shared preferences untuk digunakan MainActivity
+        val pref = getSharedPreferences("NotificationCount", MODE_PRIVATE)
+        pref.edit().putInt("unread_count", unreadCount).apply()
     }
 
-    // Fungsi untuk menambahkan notifikasi menggunakan indeks numerik
-    private fun addNotification(notification: NotificationModel) {
+    private fun markAllAsRead() {
         database.get().addOnSuccessListener { snapshot ->
-            val newIndex = snapshot.childrenCount.toInt() // Hitung jumlah notifikasi yang ada
-            database.child(newIndex.toString()).setValue(notification)
-                .addOnSuccessListener {
-                    Log.d("DEBUG", "Notifikasi berhasil ditambahkan dengan index: $newIndex")
-                }
-                .addOnFailureListener {
-                    Log.e("ERROR", "Gagal menambahkan notifikasi", it)
-                }
+            for (notifSnapshot in snapshot.children) {
+                notifSnapshot.ref.child("isRead").setValue(true)
+            }
+
+            // Update local model after marking all as read
+            for (notif in notifList) {
+                notif.isRead = true
+            }
+
+            adapter.notifyDataSetChanged()
+            updateBadge()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Gagal memperbarui status notifikasi", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun getEspIdFromSession(): String {
         val sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE)
@@ -206,4 +217,10 @@ class NotificationActivity : AppCompatActivity() {
         }
         NotificationManagerCompat.from(this).notify(notificationId, notification)
     }
+
+    override fun onStart() {
+        super.onStart()
+        markAllAsRead()
+    }
+
 }
