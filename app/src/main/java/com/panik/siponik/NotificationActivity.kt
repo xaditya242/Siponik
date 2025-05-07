@@ -53,10 +53,13 @@ class NotificationActivity : AppCompatActivity() {
 
         // Ambil data dari Firebase
         database.orderByKey().addValueEventListener(object : ValueEventListener {
+            var previousCount = 0
             override fun onDataChange(snapshot: DataSnapshot) {
+                val currentCount = snapshot.childrenCount.toInt()
                 notifList.clear()
 
-                for (notifSnapshot in snapshot.children) {
+                val reversedChildren = snapshot.children.reversed()
+                for (notifSnapshot in reversedChildren) {
                     val notif = notifSnapshot.getValue(NotificationModel::class.java)
                     notif?.let {
                         notifList.add(it)
@@ -65,6 +68,24 @@ class NotificationActivity : AppCompatActivity() {
 
                 adapter.notifyDataSetChanged()
                 updateBadge()
+
+                // Jika jumlah notifikasi bertambah, tampilkan notifikasi di status bar
+                if (notifList.isNotEmpty()) {
+                    val latestSnapshot = snapshot.children.last() // ambil key terakhir (yang baru)
+                    val latestKey = latestSnapshot.key
+
+                    val lastShownKey = getLastNotifiedKey()
+                    if (latestKey != null && latestKey != lastShownKey) {
+                        val latestNotif = latestSnapshot.getValue(NotificationModel::class.java)
+                        latestNotif?.let {
+                            showNotification(it.title ?: "Notifikasi", it.message ?: "")
+                            setLastNotifiedKey(latestKey)
+                        }
+                    }
+                }
+
+
+                previousCount = currentCount // Simpan count sekarang untuk perbandingan berikutnya
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -88,6 +109,15 @@ class NotificationActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+    }
+    private fun getLastNotifiedKey(): String? {
+        val pref = getSharedPreferences("LastNotif", MODE_PRIVATE)
+        return pref.getString("last_key", null)
+    }
+
+    private fun setLastNotifiedKey(key: String) {
+        val pref = getSharedPreferences("LastNotif", MODE_PRIVATE)
+        pref.edit().putString("last_key", key).apply()
     }
 
     private fun updateBadge() {

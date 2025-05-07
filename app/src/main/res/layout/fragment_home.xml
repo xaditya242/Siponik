@@ -212,7 +212,7 @@
                             android:id="@+id/tvpH"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:textSize="50sp"
+                            android:textSize="35sp"
                             android:text="-"
                             android:fontFamily="@font/poppins_bold"
                             android:layout_weight="5"
