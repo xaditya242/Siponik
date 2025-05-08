@@ -20,20 +20,20 @@
             android:src="@drawable/logo"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
             android:fontFamily="@font/poppins_bold"
             android:layout_marginLeft="20dp"
             android:text="Hello!"
             android:textColor="@color/hijau_tua"
-            android:textSize="50sp" />
+            android:autoSizeTextType="uniform" />
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
             android:text="Welcome to Siponik"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="20dp"
-            android:textSize="20sp"
+            android:autoSizeTextType="uniform"
             android:fontFamily="@font/poppins_regular"
             android:textColor="@color/hijau_tua"/>
 
@@ -45,15 +45,15 @@
             android:background="@drawable/corner_top_green">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_marginLeft="35dp"
                 android:layout_marginBottom="10dp"
                 android:text="Login"
                 android:textColor="@color/hijau_muda"
-                android:textSize="40sp" />
+                android:autoSizeTextType="uniform" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:text="Forgot password?"
                 android:fontFamily="@font/poppins_regular"
-                android:textSize="15sp"
+                android:autoSizeTextType="uniform"
                 android:layout_marginRight="40dp"
                 android:layout_marginBottom="20dp"
                 android:layout_marginTop="10dp"
@@ -144,13 +144,13 @@
                 android:layout_marginTop="0dp"
                 android:background="@drawable/corner_top_green1">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Login"
                     android:background="@null"
                     android:gravity="center"
                     android:textColor="@color/hijau_tua"
-                    android:textSize="35sp"
+                    android:autoSizeTextType="uniform"
                     android:fontFamily="@font/poppins_bold"/>
             </LinearLayout>
 
@@ -164,13 +164,14 @@
                     android:layout_height="wrap_content"
                     android:text="Don't have an account? "
                     android:textColor="@color/hijau_muda"
-                    android:textSize="13sp"
+                    android:autoSizeTextType="uniform"
                     android:fontFamily="@font/poppins_regular"/>
                 <TextView
                     android:id="@+id/signupRedirectButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sign Up"
+                    android:autoSizeTextType="uniform"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="@color/hijau_muda"/>
             </LinearLayout>
@@ -196,7 +197,7 @@
                     android:layout_marginRight="10dp"
                     android:textColor="@color/hijau_muda"
                     android:fontFamily="@font/poppins_regular"
-                    android:textSize="13sp"
+                    android:autoSizeTextType="uniform"
                     android:text="Or login with"/>
 
                 <View
@@ -217,24 +218,31 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/googleSignInButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     app:cardCornerRadius="20dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginLeft="10dp"
                     android:backgroundTint="@color/white">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/google"
-                        android:layout_margin="10dp"/>
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Sign in with Google"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textSize="15sp"
-                        android:gravity="center"/>
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/google"
+                            android:layout_margin="10dp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Sign in with Google"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/poppins_regular"
+                            android:autoSizeTextType="uniform"
+                            android:gravity="center"/>
+                    </LinearLayout>
+
 
                 </androidx.cardview.widget.CardView>
             </LinearLayout>

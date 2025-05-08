@@ -10,11 +10,12 @@
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
         android:text="Konfigurasi WiFi ESP8266"
-        android:textSize="20sp"
+        android:autoSizeTextType="uniform"
         android:textStyle="bold"
+        android:gravity="center"
         android:textColor="@color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Terhubung ke: ESP8266_Setup"
-        android:textSize="16sp"
+        android:autoSizeTextType="uniform"
         android:textColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Masukkan detail jaringan WiFi yang ingin disambungkan:"
-                android:textSize="14sp"
+                android:autoSizeTextType="uniform"
                 android:gravity="center"
                 android:textColor="@color/hijau_muda"
                 android:layout_marginBottom="16dp" />

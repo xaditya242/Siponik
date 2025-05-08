@@ -35,19 +35,21 @@
                 android:elevation="10dp"
                 android:layout_weight="1">
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:src="@drawable/selada"/>
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:text="Selada \nHijau"
                     android:layout_marginRight="20dp"
-                    android:textSize="35sp"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMaxTextSize="35sp"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:layout_gravity="center"
+                    android:gravity="center_vertical"
+                    android:layout_weight="1"
                     android:fontFamily="@font/poppins_bold"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -57,13 +59,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:layout_weight="0.01">
+        android:layout_weight="0.5">
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Data Sensor"
             android:gravity="center"
-            android:textSize="27sp"
+            android:autoSizeMinTextSize="15sp"
+            android:autoSizeMaxTextSize="27sp"
+            android:autoSizeTextType="uniform"
             android:fontFamily="@font/poppins_bold"
             android:textColor="@color/black"
             android:layout_gravity="center"/>
@@ -104,13 +108,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:layout_marginBottom="5dp"
                         android:layout_marginRight="5dp"
                         android:layout_marginTop="5dp"
                         android:orientation="vertical">
+
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="horizontal">
 
@@ -121,50 +127,53 @@
                                 android:layout_marginRight="5dp"
                                 android:src="@drawable/nutrisi"/>
                             <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 android:text="Nutrisi"
-                                android:textSize="15sp"
+                                android:layout_weight="1"
+                                android:autoSizeTextType="uniform"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
-                                android:paddingLeft="10dp"/>
+                                android:paddingLeft="0dp"/>
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:padding="5dp"
-                            android:layout_weight="0.5"
+                            android:orientation="vertical"
+                            android:layout_weight="1"
                             android:gravity="center">
                             <TextView
                                 android:id="@+id/tvNutrisi"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:textSize="35sp"
+                                android:autoSizeTextType="uniform"
                                 android:fontFamily="@font/poppins_bold"
-                                android:layout_weight="4"
+                                android:layout_weight="1"
                                 android:text="-"
                                 android:gravity="center"
                                 android:paddingBottom="5dp"
                                 android:layout_marginBottom="0dp"
                                 android:textColor="@color/hijau_muda"
                                 android:textStyle="bold"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:text="PPM"
+                                android:layout_weight="2"
+                                android:autoSizeTextType="uniform"
+                                android:gravity="center"
+                                android:layout_marginBottom="5dp"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/hijau_muda"
+                                android:paddingLeft="10dp"/>
                         </LinearLayout>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:text="PPM"
-                            android:layout_weight="1"
-                            android:textSize="15sp"
-                            android:gravity="center"
-                            android:layout_marginBottom="5dp"
-                            android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/hijau_muda"
-                            android:paddingLeft="10dp"/>
+
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
                 <!--                PH-->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -196,41 +205,32 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="10dp"
                                 android:layout_marginRight="5dp"
+                                android:layout_gravity="center"
                                 android:src="@drawable/ph"/>
                             <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 android:text="pH"
-                                android:textSize="15sp"
+                                android:layout_weight="1"
+                                android:autoSizeTextType="uniform"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
-                                android:paddingLeft="10dp"/>
+                                android:paddingLeft="0dp"/>
                         </LinearLayout>
 
                         <TextView
                             android:id="@+id/tvpH"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:textSize="35sp"
+                            android:autoSizeTextType="uniform"
                             android:text="-"
                             android:fontFamily="@font/poppins_bold"
-                            android:layout_weight="5"
+                            android:layout_weight="1"
                             android:layout_marginBottom="10dp"
                             android:gravity="center"
                             android:textColor="@color/hijau_muda"
                             android:textStyle="bold"/>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            android:visibility="gone"
-                            android:layout_weight="1"
-                            android:textSize="15sp"
-                            android:gravity="center"
-                            android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/hijau_muda"
-                            android:paddingLeft="10dp"/>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -253,24 +253,30 @@
                         android:layout_marginBottom="5dp"
                         android:layout_marginRight="5dp"
                         android:layout_marginTop="5dp"
+                        android:gravity="center"
                         android:orientation="vertical">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="2dp"
+                            android:layout_gravity="top"
                             android:orientation="horizontal">
 
                             <ImageView
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginLeft="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="5dp"
                                 android:layout_marginRight="5dp"
                                 android:src="@drawable/suhu"/>
                             <TextView
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:text="Suhu"
-                                android:textSize="15sp"
+                                android:layout_weight="1"
+                                android:autoSizeTextType="uniform"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
@@ -281,12 +287,13 @@
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:layout_weight="1"
-                            android:layout_marginTop="5dp"
                             android:layout_gravity="center_vertical|center_horizontal|bottom">
                             <com.panik.siponik.ArcProgressView
                                 android:id="@+id/arcProgress"
-                                android:layout_width="80dp"
-                                android:layout_height="80dp"
+                                android:layout_width="70dp"
+                                android:layout_height="70dp"
+                                android:layout_marginTop="5dp"
+                                android:foregroundGravity="center"
                                 android:layout_gravity="center"/>
                         </LinearLayout>
 
@@ -321,10 +328,10 @@
                             android:layout_marginRight="0dp"
                             android:src="@drawable/air"/>
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:text="Ketinggian Air"
-                            android:textSize="15sp"
+                            android:autoSizeTextType="uniform"
                             android:gravity="center_vertical"
                             android:paddingRight="10dp"
                             android:fontFamily="@font/poppins_bold"
@@ -347,7 +354,8 @@
                                 android:layout_height="match_parent"
                                 android:gravity="center|right"
                                 android:text="- %"
-                                android:textSize="25sp"
+                                android:autoSizeMaxTextSize="25sp"
+                                android:autoSizeTextType="uniform"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"/>
                         </LinearLayout>

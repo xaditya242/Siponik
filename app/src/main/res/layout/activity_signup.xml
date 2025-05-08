@@ -20,20 +20,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="60dp"
                     android:fontFamily="@font/poppins_bold"
                     android:layout_marginLeft="20dp"
                     android:text="Hello!"
                     android:textColor="@color/hijau_tua"
-                    android:textSize="50sp" />
+                    android:autoSizeTextType="uniform" />
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Welcome to Siponik"
                     android:layout_marginLeft="20dp"
                     android:layout_marginBottom="20dp"
-                    android:textSize="20sp"
+                    android:autoSizeTextType="uniform"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/hijau_tua"/>
             </LinearLayout>
@@ -58,15 +58,15 @@
             android:background="@drawable/corner_top_green">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/poppins_bold"
                 android:layout_marginLeft="35dp"
                 android:layout_marginBottom="10dp"
                 android:text="Sign Up"
                 android:textColor="@color/hijau_muda"
-                android:textSize="40sp" />
+                android:autoSizeTextType="uniform" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="58dp"
@@ -177,7 +177,7 @@
                     android:layout_height="wrap_content"
                     android:text="I agree for processing a personal data"
                     android:fontFamily="@font/poppins_regular"
-                    android:textSize="13sp"
+                    android:autoSizeTextType="uniform"
                     android:textColor="@color/hijau_muda"/>
             </LinearLayout>
 
@@ -193,13 +193,13 @@
                 android:layout_marginTop="70dp"
                 android:background="@drawable/corner_top_green1">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Sign Up"
                     android:background="@null"
                     android:gravity="center"
                     android:textColor="@color/hijau_tua"
-                    android:textSize="35sp"
+                    android:autoSizeTextType="uniform"
                     android:fontFamily="@font/poppins_bold"/>
             </LinearLayout>
 
@@ -207,19 +207,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:layout_marginLeft="30dp"
                 android:layout_marginTop="10dp">
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Already have an account? "
                     android:textColor="@color/hijau_muda"
-                    android:textSize="13sp"
+                    android:autoSizeTextType="uniform"
+                    android:layout_weight="1"
+                    android:gravity="right"
                     android:fontFamily="@font/poppins_regular"/>
                 <TextView
                     android:id="@+id/loginDirect"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Login"
+                    android:autoSizeTextType="uniform"
+                    android:layout_weight="1"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="@color/hijau_muda"/>
             </LinearLayout>

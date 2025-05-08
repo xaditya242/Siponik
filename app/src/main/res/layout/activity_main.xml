@@ -31,13 +31,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="SIPONIK"
-                android:gravity="center"
+                android:gravity="left"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="@color/hijau_tua"
-                android:textSize="30sp"/>
+                android:autoSizeTextType="uniform"/>
         </LinearLayout>
 
         <!--        Notifikasi-->
