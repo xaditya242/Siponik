@@ -1,19 +1,36 @@
 package com.panik.siponik
 
+import android.content.Context
 import android.content.Intent
+import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.net.wifi.ScanResult
+import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var wifiManager: WifiManager
+    private lateinit var idESP: EditText
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +38,7 @@ class SignupActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        val idESP = findViewById<EditText>(R.id.espID)
+        idESP = findViewById(R.id.espID)
         val etEmail = findViewById<EditText>(R.id.emailSignup)
         val etPassword = findViewById<EditText>(R.id.pwSignup)
         val signUpButton = findViewById<LinearLayout>(R.id.signupButton)
@@ -35,7 +52,6 @@ class SignupActivity : AppCompatActivity() {
         val eyeImage = findViewById<ImageView>(R.id.eyeSignupImage)
 
         eyeImage.setOnClickListener {
-            // Cek apakah saat ini EditText menggunakan PasswordTransformationMethod
             if (etPassword.transformationMethod is android.text.method.PasswordTransformationMethod) {
                 // Tampilkan password (hilangkan mask)
                 etPassword.transformationMethod = null
