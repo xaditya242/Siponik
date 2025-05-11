@@ -7,8 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="hijau_muda">#EFFEDF</color>
+    <color name="hijau_muda">#FFEFFEDF</color>
     <color name="hijau_tua">#FF7CAE5B</color>
     <color name="hijau_sedang">#7FB00A</color>
     <color name="abu">#707070</color>
+    <color name="hijau_soft">#FFB4D38F</color>
+    <color name="hijau_pastel">#A8C686</color>
+    <color name="hijau_sage">#9DC174</color>
+    <color name="hijau_lime">#C5E1A5</color>
 </resources>

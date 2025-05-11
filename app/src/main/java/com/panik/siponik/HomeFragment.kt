@@ -30,9 +30,13 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var cardView: CardView
     private var nutrisi: Float = 0f
     private var pH: Float = 0f
-    private var suhu: Float = 0f
+    private var suhuRuangValue: Float = 0f
+    private var suhuAirValue: Float = 0f
     private var ketinggianAir: Float = 0f
     private lateinit var arcProgress: ArcProgressView
+
+    private lateinit var suhuAir: CardView
+    private lateinit var suhuRuang: CardView
 
     private lateinit var databaseReference: DatabaseReference
     private var dataListener: ValueEventListener? = null
@@ -105,6 +109,53 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         cardView.addView(container)
     }
 
+    fun setCardViewColorsByWidth(
+        cardView: CardView,
+        @ColorRes baseColorRes: Int,
+        @ColorRes overlayColorRes: Int,
+        overlayPercentage: Float
+    ) {
+        val context = cardView.context
+        val baseColor = ContextCompat.getColor(context, baseColorRes)
+        val overlayColor = ContextCompat.getColor(context, overlayColorRes)
+
+        // Batasi maksimum overlay sampai 60%
+        val clampedOverlayPercent = overlayPercentage.coerceIn(0f, 60f)
+
+        // Hapus semua view sebelumnya
+        cardView.removeAllViews()
+
+        val container = ConstraintLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            setBackgroundColor(baseColor) // warna dasar
+        }
+
+        val overlayView = View(context).apply {
+            id = View.generateViewId()
+            setBackgroundColor(overlayColor)
+            visibility = if (clampedOverlayPercent == 0f) View.GONE else View.VISIBLE
+        }
+
+        // Tambahkan overlay dari kiri ke kanan
+        if (clampedOverlayPercent > 0f) {
+            container.addView(overlayView, ConstraintLayout.LayoutParams(0, 0).apply {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToStart = ConstraintLayout.LayoutParams.UNSET
+                matchConstraintPercentWidth = clampedOverlayPercent / 100f
+            })
+        }
+
+        // Tambahkan container ke dalam CardView
+        cardView.addView(container)
+    }
+
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -113,9 +164,11 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         tvpH = view.findViewById(R.id.tvpH)
         tvTinggi = view.findViewById(R.id.tvTinggi)
         waveView = view.findViewById(R.id.waterLevel)
+        suhuAir = view.findViewById(R.id.suhuAir)
+        suhuRuang = view.findViewById(R.id.suhuRuang)
         cardView = view.findViewById(R.id.cardViewContainer)
 
-        arcProgress = view.findViewById(R.id.arcProgress)
+//        arcProgress = view.findViewById(R.id.arcProgress)
 
         // Cek apakah pengguna sudah login
         val currentUser = auth.currentUser
@@ -144,45 +197,52 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                     if (userIdFromDb == userId) {
                         val dataNutrisi = child.child("Data/Nutrisi").value.toString()
                         val datapH = child.child("Data/pH").value.toString()
-                        val dataSuhu = child.child("Data/Suhu").value.toString()
+                        val dataSuhuAir = child.child("Data/SuhuAir").value.toString()
+                        val dataSuhuRuang = child.child("Data/SuhuRuang").value.toString()
                         val dataKetinggianAir = child.child("Data/KetinggianAir").value.toString()
 
                         nutrisi = dataNutrisi.toFloat()
                         pH = datapH.toFloat()
-                        suhu = dataSuhu.toFloat()
+                        suhuRuangValue = dataSuhuRuang.toFloat()
+                        suhuAirValue = dataSuhuAir.toFloat()
                         ketinggianAir = dataKetinggianAir.toFloat()
 
-                        setCardViewColors(cardView, R.color.hijau_muda, R.color.hijau_tua, ketinggianAir)
+                        view!!.findViewById<TextView>(R.id.tvSuhuAir).text = "$dataSuhuAir°C"
+                        view!!.findViewById<TextView>(R.id.tvSuhuRuang).text = "$dataSuhuRuang°C"
+
+                        setCardViewColors(cardView, R.color.hijau_muda, R.color.hijau_pastel, ketinggianAir)
+                        setCardViewColorsByWidth(suhuAir, R.color.hijau_muda, R.color.hijau_pastel, suhuAirValue)
+                        setCardViewColorsByWidth(suhuRuang, R.color.hijau_muda, R.color.hijau_pastel, suhuRuangValue)
 
                         tvNutrisi.text = dataNutrisi
                         tvpH.text = datapH
                         tvTinggi.text = " $dataKetinggianAir %"
 
-                        context?.let { ctx ->
-                            val baseColor = ContextCompat.getColor(ctx, R.color.hijau_muda)
-                            val progressColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-                            val capColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-                            val colorText = ContextCompat.getColor(ctx, R.color.hijau_muda)
-
-                            arcProgress.apply {
-                                baseArcColor = baseColor
-                                baseArcWidth = 28f
-
-                                progressArcColor = progressColor
-                                progressArcWidth = 15f
-
-                                capCircleColor = capColor
-                                capCircleRadius = 25f
-
-                                textColor = colorText
-                                textSize = 40f
-
-                                textFont = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
-
-                                setMaxValue(50f)
-                                setProgressValue(suhu)
-                            }
-                        }
+//                        context?.let { ctx ->
+//                            val baseColor = ContextCompat.getColor(ctx, R.color.hijau_muda)
+//                            val progressColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
+//                            val capColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
+//                            val colorText = ContextCompat.getColor(ctx, R.color.hijau_muda)
+//
+//                            arcProgress.apply {
+//                                baseArcColor = baseColor
+//                                baseArcWidth = 28f
+//
+//                                progressArcColor = progressColor
+//                                progressArcWidth = 15f
+//
+//                                capCircleColor = capColor
+//                                capCircleRadius = 25f
+//
+//                                textColor = colorText
+//                                textSize = 40f
+//
+//                                textFont = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
+//
+//                                setMaxValue(50f)
+//                                setProgressValue(suhu)
+//                            }
+//                        }
 
                         break
                     }

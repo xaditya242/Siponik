@@ -243,14 +243,12 @@
                     android:layout_marginTop="10dp"
                     android:elevation="10dp"
                     android:layout_weight="1"
-                    android:layout_marginBottom="10dp"
                     app:cardCornerRadius="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:layout_marginBottom="5dp"
                         android:layout_marginRight="5dp"
                         android:layout_marginTop="5dp"
                         android:gravity="center"
@@ -287,14 +285,113 @@
                             android:layout_height="match_parent"
                             android:gravity="center"
                             android:layout_weight="1"
-                            android:layout_gravity="center_vertical|center_horizontal|bottom">
-                            <com.panik.siponik.ArcProgressView
-                                android:id="@+id/arcProgress"
-                                android:layout_width="70dp"
-                                android:layout_height="70dp"
-                                android:layout_marginTop="5dp"
-                                android:foregroundGravity="center"
-                                android:layout_gravity="center"/>
+                            android:layout_marginBottom="10dp"
+                            android:layout_gravity="bottom">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:layout_weight="1"
+                                    android:orientation="horizontal">
+                                    <ImageView
+                                        android:layout_width="15dp"
+                                        android:layout_height="15dp"
+                                        android:layout_marginBottom="10dp"
+                                        android:layout_marginTop="10dp"
+                                        android:layout_marginLeft="15dp"
+                                        android:src="@drawable/suhu_ruangan"/>
+                                    <androidx.cardview.widget.CardView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_marginTop="12dp"
+                                        android:layout_marginBottom="12dp"
+                                        app:cardCornerRadius="20dp"
+                                        android:layout_marginRight="8dp"
+                                        android:layout_marginLeft="5dp"
+                                        app:cardElevation="4dp"
+                                        android:backgroundTint="@color/hijau_muda"
+                                        android:layout_weight="1">
+                                        <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent">
+                                            <androidx.cardview.widget.CardView
+                                                android:id="@+id/suhuRuang"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                app:cardCornerRadius="20dp"
+                                                android:layout_gravity="left"
+                                                android:backgroundTint="@color/hijau_pastel"/>
+                                        </LinearLayout>
+                                    </androidx.cardview.widget.CardView>
+                                    <TextView
+                                        android:id="@+id/tvSuhuRuang"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:textSize="13sp"
+                                        android:text="20°C"
+                                        android:gravity="center"
+                                        android:textColor="@color/hijau_muda"
+                                        android:fontFamily="@font/poppins_bold"/>
+                                </LinearLayout>
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:layout_weight="1"
+                                    android:orientation="horizontal">
+                                    <ImageView
+                                        android:layout_width="15dp"
+                                        android:layout_height="15dp"
+                                        android:layout_marginBottom="10dp"
+                                        android:layout_marginTop="10dp"
+                                        android:layout_marginLeft="15dp"
+                                        android:src="@drawable/suhu_air"/>
+                                    <androidx.cardview.widget.CardView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:layout_marginBottom="12dp"
+                                        android:layout_marginTop="12dp"
+                                        app:cardCornerRadius="20dp"
+                                        android:layout_marginRight="8dp"
+                                        android:layout_marginLeft="5dp"
+                                        app:cardElevation="4dp"
+                                        android:backgroundTint="@color/hijau_muda"
+                                        android:layout_weight="1">
+                                        <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent">
+                                            <androidx.cardview.widget.CardView
+                                                android:id="@+id/suhuAir"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                app:cardCornerRadius="20dp"
+                                                android:layout_gravity="left"
+                                                android:backgroundTint="@color/hijau_pastel"/>
+                                        </LinearLayout>
+                                    </androidx.cardview.widget.CardView>
+                                    <TextView
+                                        android:id="@+id/tvSuhuAir"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:textSize="13sp"
+                                        android:text="20°C"
+                                        android:gravity="center"
+                                        android:textColor="@color/hijau_muda"
+                                        android:fontFamily="@font/poppins_bold"/>
+                                </LinearLayout>
+                            </LinearLayout>
+<!--                            <com.panik.siponik.ArcProgressView-->
+<!--                                android:id="@+id/arcProgress"-->
+<!--                                android:layout_width="70dp"-->
+<!--                                android:layout_height="70dp"-->
+<!--                                android:layout_marginTop="5dp"-->
+<!--                                android:foregroundGravity="center"-->
+<!--                                android:layout_gravity="center"/>-->
                         </LinearLayout>
 
                     </LinearLayout>
@@ -378,7 +475,8 @@
                                     android:id="@+id/waterLevel"
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
-                                    android:backgroundTint="@color/hijau_tua"
+                                    android:layout_gravity="bottom"
+                                    android:backgroundTint="@color/hijau_pastel"
                                     app:cardCornerRadius="20dp"/>
 
                             </androidx.cardview.widget.CardView>

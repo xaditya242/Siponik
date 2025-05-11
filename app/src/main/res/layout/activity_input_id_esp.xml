@@ -100,7 +100,7 @@
                     android:background="@null"
                     android:gravity="center"
                     android:textColor="@color/hijau_tua"
-                    android:autoSizeTextType="uniform"
+                    android:textSize="20sp"
                     android:fontFamily="@font/poppins_bold"/>
             </LinearLayout>
 

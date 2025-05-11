@@ -47,7 +47,8 @@ class InputIdESPActivity : AppCompatActivity() {
                         val defaultData = mapOf(
                             "Nutrisi" to 0,
                             "pH" to 0,
-                            "Suhu" to 0,
+                            "SuhuAir" to 0,
+                            "SuhuRuang" to 0,
                             "KetinggianAir" to 0,
                             "WifiSSID" to "-"
                         )
