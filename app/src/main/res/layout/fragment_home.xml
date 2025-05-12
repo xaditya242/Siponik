@@ -406,7 +406,6 @@
                 android:elevation="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:layout_marginBottom="10dp"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout
