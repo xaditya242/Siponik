@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome to Siponik"
+            android:text="Input ID ESP to Sign Up"
             android:layout_marginLeft="20dp"
             android:layout_marginBottom="20dp"
             android:autoSizeTextType="uniform"
@@ -74,7 +74,7 @@
                     android:layout_weight="1"
                     android:hint="ID ESP"
                     android:layout_marginLeft="10dp"
-                    android:inputType="textEmailAddress"
+                    android:inputType="text"
                     android:background="@null"
                     android:textColor="@color/black"
                     android:textColorHint="@color/black"

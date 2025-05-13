@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var base: LinearLayout
     private lateinit var homeIcon: ImageView
     private lateinit var settingsIcon: ImageView
+    private lateinit var btnHome: LinearLayout
+    private lateinit var btnSetting: LinearLayout
 
     private lateinit var btNotif: ImageView
     private lateinit var badgeNotifMain: TextView
@@ -41,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         activeIndicator = findViewById(R.id.activeIndicator)
         homeIcon = findViewById(R.id.homeIcon)
         settingsIcon = findViewById(R.id.settingIcon)
+        btnHome = findViewById(R.id.btnHome)
+        btnSetting = findViewById(R.id.btnSetting)
         base = findViewById(R.id.Base)
 
         btNotif = findViewById(R.id.btn_notif)
@@ -78,12 +82,12 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
 
-        homeIcon.setOnClickListener {
+        btnHome.setOnClickListener {
             replaceFragment(HomeFragment(), true)
             moveIndicator(true)
         }
 
-        settingsIcon.setOnClickListener {
+        btnSetting.setOnClickListener {
             replaceFragment(SettingFragment(), false)
             moveIndicator(false)
         }
@@ -104,17 +108,17 @@ class MainActivity : AppCompatActivity() {
         if (toHome) {
             homeIcon.setImageResource(R.drawable.home2)
             settingsIcon.setImageResource(R.drawable.set1)
-            homeIcon.isClickable = false
-            settingsIcon.isClickable = true
+            btnHome.isClickable = false
+            btnSetting.isClickable = true
         } else {
             homeIcon.setImageResource(R.drawable.home1)
             settingsIcon.setImageResource(R.drawable.set2)
-            homeIcon.isClickable = true
-            settingsIcon.isClickable = false
+            btnHome.isClickable = true
+            btnSetting.isClickable = false
         }
         // Animasi perpindahan
         ObjectAnimator.ofFloat(activeIndicator, "translationX", targetX).apply {
-            duration = 50
+            duration = 20
             start()
         }
     }
