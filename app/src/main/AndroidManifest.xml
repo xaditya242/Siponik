@@ -20,37 +20,38 @@
         android:theme="@style/Theme.Siponik"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/Theme.Siponik.Splash"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.Siponik.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".NotificationActivity"
+        <activity
+            android:name=".NotificationActivity"
             android:theme="@style/Theme.Siponik" />
-
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.Siponik"/>
-
-        <activity android:name=".LoginActivity"
-            android:theme="@style/Theme.Siponik"/>
-
-        <activity android:name=".SignupActivity"
-            android:theme="@style/Theme.Siponik"/>
-
-        <activity android:name=".InputIdESPActivity"
-            android:theme="@style/Theme.Siponik"/>
-
-        <activity android:name=".WifiFormActivity"
-            android:theme="@style/Theme.Siponik"/>
-
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.Siponik" />
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@style/Theme.Siponik" />
+        <activity
+            android:name=".SignupActivity"
+            android:theme="@style/Theme.Siponik" />
+        <activity
+            android:name=".InputIdESPActivity"
+            android:theme="@style/Theme.Siponik" />
+        <activity
+            android:name=".WifiFormActivity"
+            android:theme="@style/Theme.Siponik" />
         <activity android:name=".GoogleSignInActivity" />
-
     </application>
 
 </manifest>

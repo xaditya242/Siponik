@@ -58,6 +58,13 @@ class LoginActivity : AppCompatActivity() {
             }
             passwordField.setSelection(passwordField.text.length)
         }
+        val btnForgotPassword = findViewById<TextView>(R.id.btnForgotPassword)
+
+        btnForgotPassword.setOnClickListener {
+            Intent(this@LoginActivity, ResetPasswordActivity::class.java).also {
+                startActivity(it)
+            }
+        }
 
         loginButton.setOnClickListener {
             val email = emailField.text.toString().trim()
@@ -102,6 +109,8 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, SignupActivity::class.java))
             finish()
         }
+
     }
+
 }
 
