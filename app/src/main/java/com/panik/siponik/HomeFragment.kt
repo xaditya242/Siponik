@@ -207,8 +207,8 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                         suhuAirValue = dataSuhuAir.toFloat()
                         ketinggianAir = dataKetinggianAir.toFloat()
 
-                        view!!.findViewById<TextView>(R.id.tvSuhuAir).text = "$dataSuhuAir°C"
-                        view!!.findViewById<TextView>(R.id.tvSuhuRuang).text = "$dataSuhuRuang°C"
+                        view?.findViewById<TextView>(R.id.tvSuhuAir)?.text = "$dataSuhuAir°C"
+                        view?.findViewById<TextView>(R.id.tvSuhuRuang)?.text = "$dataSuhuRuang°C"
 
                         setCardViewColors(cardView, R.color.hijau_muda, R.color.hijau_pastel, ketinggianAir)
                         setCardViewColorsByWidth(suhuAir, R.color.hijau_muda, R.color.hijau_pastel, suhuAirValue)
@@ -217,32 +217,6 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                         tvNutrisi.text = dataNutrisi
                         tvpH.text = datapH
                         tvTinggi.text = " $dataKetinggianAir %"
-
-//                        context?.let { ctx ->
-//                            val baseColor = ContextCompat.getColor(ctx, R.color.hijau_muda)
-//                            val progressColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-//                            val capColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-//                            val colorText = ContextCompat.getColor(ctx, R.color.hijau_muda)
-//
-//                            arcProgress.apply {
-//                                baseArcColor = baseColor
-//                                baseArcWidth = 28f
-//
-//                                progressArcColor = progressColor
-//                                progressArcWidth = 15f
-//
-//                                capCircleColor = capColor
-//                                capCircleRadius = 25f
-//
-//                                textColor = colorText
-//                                textSize = 40f
-//
-//                                textFont = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
-//
-//                                setMaxValue(50f)
-//                                setProgressValue(suhu)
-//                            }
-//                        }
 
                         break
                     }

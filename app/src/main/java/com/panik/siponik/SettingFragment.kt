@@ -12,22 +12,29 @@ import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.util.Log
 import android.Manifest
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -36,10 +43,14 @@ import com.google.firebase.database.ValueEventListener
 class SettingFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var auth: FirebaseAuth
     private lateinit var btnLogout: TextView
+    private lateinit var btnDelete: TextView
 
     private lateinit var tvIDESP: TextView
     private lateinit var tvUserID: TextView
     private lateinit var tvSSID: TextView
+    private lateinit var dataUser: String
+    private lateinit var dataEmail: String
+    private lateinit var dataSSID: String
 
     private lateinit var sharedPreferences: SharedPreferences
     private val PREFS_NAME = "AppPrefs"
@@ -49,6 +60,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var adapter: ArrayAdapter<String>
     private val wifiScanResults = mutableListOf<ScanResult>()
     private lateinit var linearWifi: LinearLayout
+
 
     private lateinit var progressBarWifi: ProgressBar
 
@@ -142,6 +154,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
 
         auth = FirebaseAuth.getInstance()
         btnLogout = view.findViewById(R.id.btnLogout)
+        btnDelete = view.findViewById(R.id.btnDelete)
         tvIDESP = view.findViewById(R.id.tvIDESP)
         tvUserID = view.findViewById(R.id.tvUserID)
         tvSSID = view.findViewById(R.id.tvSSID)
@@ -194,11 +207,35 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         refreshFirebaseData()
+
+        btnDelete.setOnClickListener{
+            val dialog = CustomDialogFragment(
+                "Hapus Akun",
+                "Apakah kamu yakin untuk \nMENGHAPUS AKUN?",
+                onContinue = {
+                    deleteAccountAndDatabaseNode(this.requireContext(), parentFragmentManager,
+                        onSuccess = {
+                            Toast.makeText(this.requireContext(), "Akun berhasil dihapus", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this.requireContext(), LoginActivity::class.java))
+                            requireActivity().finish()
+                        },
+                        onFailure = { errorMsg ->
+                            Toast.makeText(this.requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                },
+                onCancel = {
+
+                }
+            )
+            dialog.show(parentFragmentManager, "CustomDialog")
+        }
         // Logout
         btnLogout.setOnClickListener{
             val dialog = CustomDialogFragment(
-                "Alert",
-                "Are you sure you want to Log Out?",
+                "Losgout",
+                "Apakah kamu yakin untuk Log Out?",
+                showInputField = false,
                 onContinue = {
                     auth.signOut()
 
@@ -242,9 +279,9 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                         val userPath = child.key // Dapatkan key dari user yang sesuai
 
                         if (userPath != null) {
-                            val dataUser = child.child("UserInfo/ID ESP").value.toString()
-                            val dataEmail = child.child("UserInfo/email").value.toString()
-                            val dataSSID = child.child("Data/WifiSSID").value.toString()
+                            dataUser = child.child("UserInfo/ID ESP").value.toString()
+                            dataEmail = child.child("UserInfo/email").value.toString()
+                            dataSSID = child.child("Data/WifiSSID").value.toString()
                             tvIDESP.text = dataUser
                             tvUserID.text = dataEmail
                             tvSSID.text = dataSSID
@@ -261,4 +298,126 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         })
     }
 
+    fun deleteAccountAndDatabaseNode(
+        context: Context,
+        fragmentManager: FragmentManager,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val user = FirebaseAuth.getInstance().currentUser
+        val database = FirebaseDatabase.getInstance().reference
+
+        if (user == null) {
+            onFailure("User tidak ditemukan.")
+            return
+        }
+
+        // Tampilkan dialog input password dulu
+        val dialog = CustomDialogFragment(
+            title = "Masukkan Password",
+            message = "Masukkan password Anda untuk konfirmasi.",
+            showInputField = true,
+            onContinue = { password ->
+
+                val credential = EmailAuthProvider.getCredential(user.email ?: "", password.toString()
+                )
+
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+                        // Jika reauth sukses, hapus data database terlebih dahulu
+                        database.child("Siponik").get().addOnSuccessListener { snapshot ->
+                            var found = false
+
+                            for (espSnapshot in snapshot.children) {
+                                val userIdInDb = espSnapshot.child("UserInfo/userId").value?.toString()
+                                if (userIdInDb == user.uid) {
+                                    found = true
+
+                                    espSnapshot.ref.removeValue().addOnCompleteListener { removeTask ->
+                                        if (removeTask.isSuccessful) {
+                                            // Setelah hapus database, hapus user auth
+                                            user.delete()
+                                                .addOnSuccessListener { onSuccess() }
+                                                .addOnFailureListener { e -> onFailure("Gagal hapus akun: ${e.message}") }
+                                        } else {
+                                            onFailure("Gagal menghapus data di database.")
+                                        }
+                                    }
+                                    break
+                                }
+                            }
+
+                            if (!found) {
+                                onFailure("Data pengguna tidak ditemukan di database.")
+                            }
+                        }.addOnFailureListener {
+                            onFailure("Gagal membaca database: ${it.message}")
+                        }
+                    }
+                    .addOnFailureListener {
+                        onFailure("Re-authentication gagal: ${it.message}")
+                    }
+            },
+            onCancel = {
+                onFailure("Penghapusan akun dibatalkan oleh pengguna.")
+            }
+        )
+        dialog.show(fragmentManager, "CustomDialog")
+    }
+
+
+
+    fun reauthenticateIfNeeded(
+        fragmentManager: FragmentManager,
+        user: FirebaseUser,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val providerId = user.providerData[1].providerId
+        if (providerId == "password") {
+            showPasswordInputDialog(fragmentManager) { inputPassword ->
+                val credential = EmailAuthProvider.getCredential(user.email ?: "", inputPassword)
+                user.reauthenticate(credential)
+                    .addOnSuccessListener {
+                        user.delete()
+                            .addOnSuccessListener { onSuccess() }
+                            .addOnFailureListener { e -> onFailure("Gagal hapus akun: ${e.message}") }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure("Re-authentication gagal: ${e.message}")
+                    }
+            }
+        } else {
+            user.delete()
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { e -> onFailure("Gagal hapus akun: ${e.message}") }
+        }
+    }
+
+
+    fun showPasswordInputDialog(fragmentManager: FragmentManager, onPasswordEntered: (String) -> Unit) {
+        val dialog = CustomDialogFragment(
+            title = "Masukkan Password",
+            message = "Silakan masukkan password akun Anda untuk verifikasi.",
+            showInputField = true,
+            onContinue = { password ->
+                if (!password.isNullOrEmpty()) {
+                    onPasswordEntered(password)
+                } else {
+                    Toast.makeText(
+                        fragmentManager.fragmentFactory.instantiate(
+                            ClassLoader.getSystemClassLoader(),
+                            CustomDialogFragment::class.java.name
+                        ).requireContext(),
+                        "Password tidak boleh kosong",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+            onCancel = {
+                // Bisa kosong atau berikan logika lain jika dibutuhkan
+            }
+        )
+        dialog.show(fragmentManager, "PasswordDialog")
+    }
 }

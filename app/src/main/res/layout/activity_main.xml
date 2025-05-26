@@ -92,7 +92,7 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:visibility="visible"
         android:paddingBottom="10dp"
         android:layout_gravity="bottom|center">

@@ -1,40 +1,30 @@
 package com.panik.siponik
 
-import android.content.Context
 import android.content.Intent
-import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.net.wifi.ScanResult
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.provider.Settings
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 class SignupActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var wifiManager: WifiManager
     private lateinit var idESP: EditText
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+
+        val loadingOverlay = findViewById<FrameLayout>(R.id.loadingOverlay)
 
         auth = FirebaseAuth.getInstance()
 
@@ -71,62 +61,63 @@ class SignupActivity : AppCompatActivity() {
             val password = etPassword.text.toString().trim()
 
             if (email.isNotEmpty() && password.isNotEmpty() && ID_ESP.isNotEmpty()) {
-                val userDatabase = FirebaseDatabase.getInstance().getReference("Siponik").child(ID_ESP)
-
-                // Langkah 1: Cek apakah ID_ESP sudah terdaftar
-                userDatabase.child("UserInfo").get().addOnSuccessListener { snapshot ->
-                    if (snapshot.exists()) {
-                        // ID ESP sudah ada → gagal
-                        Toast.makeText(this, "ID ESP sudah terdaftar. Silakan login.", Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this, LoginActivity::class.java))
-                        finish()
-                    } else {
-                        // ID ESP belum ada → lanjut daftar
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-
-                                    val dataRef = userDatabase.child("Data")
-                                    val userInfoRef = userDatabase.child("UserInfo")
-
-                                    val userData = mapOf(
-                                        "email" to email,
-                                        "ID ESP" to ID_ESP,
-                                        "userId" to userId
-                                    )
-
-                                    val monitorData = mapOf(
-                                        "Nutrisi" to 0,
-                                        "pH" to 0,
-                                        "SuhuAir" to 0,
-                                        "SuhuRuang" to 0,
-                                        "KetinggianAir" to 0,
-                                        "WifiSSID" to "-"
-                                    )
-
-                                    dataRef.setValue(monitorData)
-                                    userInfoRef.setValue(userData).addOnCompleteListener {
-                                        Toast.makeText(this, "Sign Up berhasil!", Toast.LENGTH_SHORT).show()
-                                        startActivity(Intent(this, MainActivity::class.java))
-                                        finish()
-                                    }
-
-                                } else {
-                                    Toast.makeText(this, "Sign Up gagal: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                    }
-                }.addOnFailureListener {
-                    Toast.makeText(this, "Gagal mengecek ID ESP: ${it.message}", Toast.LENGTH_SHORT).show()
+                loadingOverlay.visibility = View.VISIBLE
+                loadingOverlay.post {
+                    // Delay kecil untuk memastikan overlay terlihat
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        proceedSignUp(email, password, ID_ESP, loadingOverlay)
+                    }, 50)
                 }
             } else {
                 Toast.makeText(this, "Harap isi data dengan benar!", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
+    private fun proceedSignUp(email: String, password: String, ID_ESP: String, loadingOverlay: FrameLayout) {
+        val userDatabase = FirebaseDatabase.getInstance().getReference("Siponik").child(ID_ESP)
+
+        userDatabase.child("UserInfo").get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                loadingOverlay.visibility = View.GONE
+                Toast.makeText(this, "ID ESP sudah terdaftar. Silakan login.", Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            } else {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        loadingOverlay.visibility = View.GONE
+                        if (task.isSuccessful) {
+                            val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
+                            val userData = mapOf("email" to email, "ID ESP" to ID_ESP, "userId" to userId)
+                            val monitorData = mapOf(
+                                "Nutrisi" to 0, "pH" to 0, "SuhuAir" to 0,
+                                "SuhuRuang" to 0, "KetinggianAir" to 0, "WifiSSID" to "-"
+                            )
+
+                            val dataRef = userDatabase.child("Data")
+                            val userInfoRef = userDatabase.child("UserInfo")
+
+                            dataRef.setValue(monitorData)
+                            userInfoRef.setValue(userData).addOnCompleteListener {
+                                Toast.makeText(this, "Sign Up berhasil!", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, MainActivity::class.java))
+                                finish()
+                            }
+
+                        } else {
+                            Toast.makeText(this, "Sign Up gagal: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+            }
+        }.addOnFailureListener {
+            loadingOverlay.visibility = View.GONE
+            Toast.makeText(this, "Gagal mengecek ID ESP: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         super.onBackPressed()
         startActivity(Intent(this, LoginActivity::class.java))
