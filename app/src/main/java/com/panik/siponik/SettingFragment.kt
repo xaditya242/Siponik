@@ -233,7 +233,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         // Logout
         btnLogout.setOnClickListener{
             val dialog = CustomDialogFragment(
-                "Losgout",
+                "Logout",
                 "Apakah kamu yakin untuk Log Out?",
                 showInputField = false,
                 onContinue = {
