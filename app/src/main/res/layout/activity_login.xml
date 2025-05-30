@@ -81,7 +81,7 @@
                         android:inputType="textEmailAddress"
                         android:background="@null"
                         android:textColor="@color/black"
-                        android:textColorHint="@color/black"
+                        android:textColorHint="#A0A0A0"
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_regular"/>
                 </LinearLayout>
@@ -108,9 +108,10 @@
                         android:hint="Enter Password"
                         android:layout_marginLeft="10dp"
                         android:background="@null"
+                        android:importantForAutofill="no"
                         android:inputType="textPassword"
                         android:textColor="@color/black"
-                        android:textColorHint="@color/black"
+                        android:textColorHint="#A0A0A0"
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_regular"/>
 
@@ -139,7 +140,7 @@
                 <LinearLayout
                     android:id="@+id/loginButton"
                     android:layout_width="match_parent"
-                    android:layout_height="58dp"
+                    android:layout_height="45dp"
                     android:orientation="horizontal"
                     android:gravity="center"
                     android:layout_gravity="center"
@@ -155,6 +156,8 @@
                         android:gravity="center"
                         android:textColor="@color/hijau_tua"
                         android:autoSizeTextType="uniform"
+                        android:autoSizeMinTextSize="15sp"
+                        android:autoSizeMaxTextSize="25sp"
                         android:fontFamily="@font/poppins_bold"/>
                 </LinearLayout>
 
@@ -227,26 +230,22 @@
                         android:layout_marginRight="10dp"
                         android:layout_marginLeft="10dp"
                         android:backgroundTint="@color/white">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:orientation="horizontal">
+
                             <ImageView
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
                                 android:src="@drawable/google"
-                                android:layout_margin="10dp"/>
+                                android:layout_margin="8dp"/>
                             <TextView
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:text="Sign in with Google"
                                 android:textColor="@color/black"
                                 android:fontFamily="@font/poppins_regular"
                                 android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="12sp"
+                                android:autoSizeMaxTextSize="15sp"
                                 android:gravity="center"/>
-                        </LinearLayout>
-
 
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>

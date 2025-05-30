@@ -78,7 +78,6 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
             }
         }
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

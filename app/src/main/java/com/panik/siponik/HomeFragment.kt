@@ -41,6 +41,11 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var databaseReference: DatabaseReference
     private var dataListener: ValueEventListener? = null
 
+    private lateinit var containerNutrisi: CardView
+    private lateinit var containerPH: CardView
+    private lateinit var containerSuhu: CardView
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -167,6 +172,9 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         suhuAir = view.findViewById(R.id.suhuAir)
         suhuRuang = view.findViewById(R.id.suhuRuang)
         cardView = view.findViewById(R.id.cardViewContainer)
+        containerNutrisi = view.findViewById(R.id.containerNutrisi)
+        containerPH = view.findViewById(R.id.containerPH)
+        containerSuhu = view.findViewById(R.id.containerSuhu)
 
 //        arcProgress = view.findViewById(R.id.arcProgress)
 
