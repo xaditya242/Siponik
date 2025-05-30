@@ -407,6 +407,7 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/containerAir"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/hijau_tua"

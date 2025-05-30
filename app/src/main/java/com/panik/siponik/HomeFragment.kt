@@ -221,10 +221,9 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
         refreshFirebaseData()
 
-        val cardnutrisi = view.findViewById<CardView>(R.id.cardnutrisi)
 
         //alert
-        cardnutrisi.setOnClickListener {
+        containerNutrisi.setOnClickListener {
             showCustomAlert(
                 requireContext(), // atau requireActivity()
                 R.drawable.nutrisi_icon,
@@ -232,9 +231,7 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                 "Kadar nutrisi berada di angka 100-150 ppm"
             )
     }
-        val cardph = view.findViewById<CardView>(R.id.cardph)
-
-        cardph.setOnClickListener {
+        containerPH.setOnClickListener {
             showCustomAlert(
                 requireContext(),
                 R.drawable.ph_icon,
@@ -243,9 +240,7 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
             )
         }
 
-        val cardsuhu = view.findViewById<CardView>(R.id.cardsuhu)
-
-        cardsuhu.setOnClickListener {
+        containerSuhu.setOnClickListener {
             showCustomAlert(
                 requireContext(),
                 R.drawable.nutrisi_icon,
@@ -253,9 +248,9 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                 "Suhu harus berada di angka 15-25 C"
             )
         }
-        val cardair = view.findViewById<CardView>(R.id.cardair)
+        val containerair = view.findViewById<CardView>(R.id.containerAir)
 
-        cardair.setOnClickListener {
+        containerair.setOnClickListener {
             showCustomAlert(
                 requireContext(),
                 R.drawable.air_icon,
