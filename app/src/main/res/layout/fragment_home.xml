@@ -11,16 +11,13 @@
         android:layout_weight="1"
         android:layout_marginBottom="5dp"
         android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:layout_weight="1">
-
         </LinearLayout>
-
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -80,7 +77,7 @@
         android:layout_weight="2"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="20dp"
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,7 +94,7 @@
 
                 <!--                Nutrisi-->
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardnutrisi"
+                    android:id="@+id/containerNutrisi"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -133,6 +130,8 @@
                                 android:text="Nutrisi"
                                 android:layout_weight="1"
                                 android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="13sp"
+                                android:autoSizeMinTextSize="10sp"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
@@ -149,7 +148,7 @@
                                 android:id="@+id/tvNutrisi"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:autoSizeTextType="uniform"
+                                android:textSize="25sp"
                                 android:fontFamily="@font/poppins_bold"
                                 android:layout_weight="1"
                                 android:text="-"
@@ -165,8 +164,9 @@
                                 android:text="PPM"
                                 android:layout_weight="2"
                                 android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeMinTextSize="10sp"
                                 android:gravity="center"
-                                android:layout_marginBottom="5dp"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
                                 android:paddingLeft="10dp"/>
@@ -177,7 +177,7 @@
                 </androidx.cardview.widget.CardView>
                 <!--                PH-->
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardph"
+                    android:id="@+id/containerPH"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -215,6 +215,8 @@
                                 android:text="pH"
                                 android:layout_weight="1"
                                 android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="13sp"
+                                android:autoSizeMinTextSize="10sp"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
@@ -225,7 +227,7 @@
                             android:id="@+id/tvpH"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:autoSizeTextType="uniform"
+                            android:textSize="25sp"
                             android:text="-"
                             android:fontFamily="@font/poppins_bold"
                             android:layout_weight="1"
@@ -239,7 +241,7 @@
 
                 <!--                Suhu-->
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardsuhu"
+                    android:id="@+id/containerSuhu"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -278,6 +280,8 @@
                                 android:text="Suhu"
                                 android:layout_weight="1"
                                 android:autoSizeTextType="uniform"
+                                android:autoSizeMaxTextSize="13sp"
+                                android:autoSizeMinTextSize="10sp"
                                 android:gravity="center_vertical"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/hijau_muda"
@@ -403,7 +407,6 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardair"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/hijau_tua"
@@ -415,8 +418,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    >
+                    android:orientation="vertical">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="25dp"
@@ -433,6 +435,8 @@
                             android:layout_height="match_parent"
                             android:text="Ketinggian Air"
                             android:autoSizeTextType="uniform"
+                            android:autoSizeMaxTextSize="12sp"
+                            android:autoSizeMinTextSize="10sp"
                             android:gravity="center_vertical"
                             android:paddingRight="10dp"
                             android:fontFamily="@font/poppins_bold"

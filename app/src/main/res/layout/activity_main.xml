@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:paddingBottom="10dp"
+    android:paddingBottom="20dp"
     android:background="@color/hijau_muda"
     android:gravity="top">
 
@@ -13,7 +13,7 @@
         android:layout_height="70dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="25dp"
         android:orientation="horizontal">
         <!--        Logo-->
         <LinearLayout
@@ -92,7 +92,7 @@
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:visibility="visible"
         android:paddingBottom="10dp"
         android:layout_gravity="bottom|center">

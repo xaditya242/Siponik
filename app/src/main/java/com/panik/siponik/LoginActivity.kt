@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -27,6 +29,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         auth = FirebaseAuth.getInstance()
+        val loadingOverlay = findViewById<FrameLayout>(R.id.loadingOverlay)
 
         val googleLoginButton = findViewById<CardView>(R.id.googleSignInButton)
         googleLoginButton.setOnClickListener {
@@ -71,8 +74,10 @@ class LoginActivity : AppCompatActivity() {
             val password = passwordField.text.toString().trim()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
+                loadingOverlay.visibility = View.VISIBLE
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
+                        loadingOverlay.visibility = View.GONE
                         if (task.isSuccessful) {
                             val userId = auth.currentUser?.uid ?: ""
                             Log.d("DEBUG", "User ID yang login: $userId")
@@ -102,6 +107,8 @@ class LoginActivity : AppCompatActivity() {
                             Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
                         }
                     }
+            } else {
+                Toast.makeText(this, "Harap isi data dengan benar!", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -71,6 +71,9 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         dialog.window?.setLayout(width.toInt(), height.toInt())
     }
 
+    private lateinit var containerNutrisi: CardView
+    private lateinit var containerPH: CardView
+    private lateinit var containerSuhu: CardView
 
 
 
@@ -199,6 +202,9 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         suhuAir = view.findViewById(R.id.suhuAir)
         suhuRuang = view.findViewById(R.id.suhuRuang)
         cardView = view.findViewById(R.id.cardViewContainer)
+        containerNutrisi = view.findViewById(R.id.containerNutrisi)
+        containerPH = view.findViewById(R.id.containerPH)
+        containerSuhu = view.findViewById(R.id.containerSuhu)
 
 //        arcProgress = view.findViewById(R.id.arcProgress)
 
@@ -285,8 +291,8 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                         suhuAirValue = dataSuhuAir.toFloat()
                         ketinggianAir = dataKetinggianAir.toFloat()
 
-                        view!!.findViewById<TextView>(R.id.tvSuhuAir).text = "$dataSuhuAir°C"
-                        view!!.findViewById<TextView>(R.id.tvSuhuRuang).text = "$dataSuhuRuang°C"
+                        view?.findViewById<TextView>(R.id.tvSuhuAir)?.text = "$dataSuhuAir°C"
+                        view?.findViewById<TextView>(R.id.tvSuhuRuang)?.text = "$dataSuhuRuang°C"
 
                         setCardViewColors(cardView, R.color.hijau_muda, R.color.hijau_pastel, ketinggianAir)
                         setCardViewColorsByWidth(suhuAir, R.color.hijau_muda, R.color.hijau_pastel, suhuAirValue)
@@ -295,32 +301,6 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                         tvNutrisi.text = dataNutrisi
                         tvpH.text = datapH
                         tvTinggi.text = " $dataKetinggianAir %"
-
-//                        context?.let { ctx ->
-//                            val baseColor = ContextCompat.getColor(ctx, R.color.hijau_muda)
-//                            val progressColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-//                            val capColor = ContextCompat.getColor(ctx, R.color.hijau_tua)
-//                            val colorText = ContextCompat.getColor(ctx, R.color.hijau_muda)
-//
-//                            arcProgress.apply {
-//                                baseArcColor = baseColor
-//                                baseArcWidth = 28f
-//
-//                                progressArcColor = progressColor
-//                                progressArcWidth = 15f
-//
-//                                capCircleColor = capColor
-//                                capCircleRadius = 25f
-//
-//                                textColor = colorText
-//                                textSize = 40f
-//
-//                                textFont = ResourcesCompat.getFont(ctx, R.font.poppins_bold)
-//
-//                                setMaxValue(50f)
-//                                setProgressValue(suhu)
-//                            }
-//                        }
 
                         break
                     }
