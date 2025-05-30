@@ -1,11 +1,16 @@
 package com.panik.siponik
 
 import FirebaseRefreshable
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.cardview.widget.CardView
@@ -40,6 +45,33 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
 
     private lateinit var databaseReference: DatabaseReference
     private var dataListener: ValueEventListener? = null
+
+    //alert
+    fun showCustomAlert(context: Context, iconRes: Int, title: String, message: String) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.custom_alert, null)
+        val dialog = AlertDialog.Builder(context).setView(dialogView).create()
+
+        val iconImage = dialogView.findViewById<ImageView>(R.id.iconImage)
+        val titleText = dialogView.findViewById<TextView>(R.id.alertTitle)
+        val messageText = dialogView.findViewById<TextView>(R.id.alertMessage)
+        val closeButton = dialogView.findViewById<ImageView>(R.id.closeButton)
+
+        iconImage.setImageResource(iconRes)
+        titleText.text = title
+        messageText.text = message
+
+        closeButton.setOnClickListener { dialog.dismiss() }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+
+        // Set ukuran dialog ke 250dp x 250dp
+        val width = context.resources.displayMetrics.density * 250
+        val height = context.resources.displayMetrics.density * 250
+        dialog.window?.setLayout(width.toInt(), height.toInt())
+    }
+
+
 
 
     override fun onCreateView(
@@ -182,6 +214,52 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         val userId = currentUser.uid
         databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
         refreshFirebaseData()
+
+        val cardnutrisi = view.findViewById<CardView>(R.id.cardnutrisi)
+
+        //alert
+        cardnutrisi.setOnClickListener {
+            showCustomAlert(
+                requireContext(), // atau requireActivity()
+                R.drawable.nutrisi_icon,
+                "Informasi Kadar Nutrisi",
+                "Kadar nutrisi berada di angka 100-150 ppm"
+            )
+    }
+        val cardph = view.findViewById<CardView>(R.id.cardph)
+
+        cardph.setOnClickListener {
+            showCustomAlert(
+                requireContext(),
+                R.drawable.ph_icon,
+                "Informasi Nilai pH",
+                "pH harus berada di angka 6-7"
+            )
+        }
+
+        val cardsuhu = view.findViewById<CardView>(R.id.cardsuhu)
+
+        cardsuhu.setOnClickListener {
+            showCustomAlert(
+                requireContext(),
+                R.drawable.nutrisi_icon,
+                "Informasi Suhu",
+                "Suhu harus berada di angka 15-25 C"
+            )
+        }
+        val cardair = view.findViewById<CardView>(R.id.cardair)
+
+        cardair.setOnClickListener {
+            showCustomAlert(
+                requireContext(),
+                R.drawable.air_icon,
+                "Informasi Stok Air",
+                "Suhu harus berada di angka 15-25 C"
+            )
+        }
+
+
+
     }
 
     override fun refreshFirebaseData() {

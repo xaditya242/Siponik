@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/rounded_white_bg">
+
+    <!-- Close Button -->
+    <ImageView
+        android:id="@+id/closeButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/close_icon"
+        android:layout_gravity="top|end"
+        android:padding="4dp"
+        android:contentDescription="Tutup"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Main Content -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="24dp">
+
+        <ImageView
+            android:id="@+id/iconImage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_default" />
+
+        <TextView
+            android:id="@+id/alertTitle"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Judul"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/alertMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Pesan"
+            android:textSize="14sp"
+            android:textColor="#444444"
+          android:gravity="center" />
+
+    </LinearLayout>
+
+</FrameLayout>

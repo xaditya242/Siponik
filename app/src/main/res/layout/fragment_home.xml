@@ -97,6 +97,7 @@
 
                 <!--                Nutrisi-->
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardnutrisi"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -176,6 +177,7 @@
                 </androidx.cardview.widget.CardView>
                 <!--                PH-->
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardph"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -237,6 +239,7 @@
 
                 <!--                Suhu-->
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardsuhu"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:backgroundTint="@color/hijau_tua"
@@ -400,6 +403,7 @@
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardair"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:backgroundTint="@color/hijau_tua"
@@ -411,7 +415,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    >
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="25dp"
