@@ -354,7 +354,7 @@
                                     <ImageView
                                         android:layout_width="15dp"
                                         android:layout_height="15dp"
-                                        android:layout_marginBottom="10dp"
+                                        android:layout_marginBottom="13dp"
                                         android:layout_marginTop="10dp"
                                         android:layout_marginLeft="15dp"
                                         android:src="@drawable/suhu_air"/>
