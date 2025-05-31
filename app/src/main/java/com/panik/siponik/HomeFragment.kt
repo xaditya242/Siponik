@@ -75,8 +75,6 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var containerPH: CardView
     private lateinit var containerSuhu: CardView
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -189,8 +187,6 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         cardView.addView(container)
     }
 
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -221,14 +217,14 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
         databaseReference = FirebaseDatabase.getInstance().getReference("Siponik")
         refreshFirebaseData()
 
-
         //alert
         containerNutrisi.setOnClickListener {
             showCustomAlert(
                 requireContext(), // atau requireActivity()
                 R.drawable.nutrisi_icon,
                 "Informasi Kadar Nutrisi",
-                "Kadar nutrisi berada di angka 100-150 ppm"
+                "Kadar nutrisi harus berada di angka \n" +
+                        "560-840 ppm"
             )
     }
         containerPH.setOnClickListener {
@@ -236,16 +232,18 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                 requireContext(),
                 R.drawable.ph_icon,
                 "Informasi Nilai pH",
-                "pH harus berada di angka 6-7"
+                "pH harus berada \n" +
+                        "di angka 6-7"
             )
         }
 
         containerSuhu.setOnClickListener {
             showCustomAlert(
                 requireContext(),
-                R.drawable.nutrisi_icon,
+                R.drawable.temperature_icon,
                 "Informasi Suhu",
-                "Suhu harus berada di angka 15-25 C"
+                "Suhu harus berada di angka \n" +
+                        "15-25 C"
             )
         }
         val containerair = view.findViewById<CardView>(R.id.containerAir)
@@ -255,7 +253,8 @@ class HomeFragment : Fragment(), FirebaseRefreshable  {
                 requireContext(),
                 R.drawable.air_icon,
                 "Informasi Stok Air",
-                "Suhu harus berada di angka 15-25 C"
+                "Stok air nutrisi harus berada \n" +
+                        "di angka 51 - 100%"
             )
         }
 
