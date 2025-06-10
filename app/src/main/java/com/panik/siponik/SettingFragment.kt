@@ -78,6 +78,33 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
             }
         }
     }
+
+    // METHOD BARU - TAMBAHKAN INI
+    private fun checkAndRequestPermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        // Untuk Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.NEARBY_WIFI_DEVICES)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.NEARBY_WIFI_DEVICES)
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            Log.d("WiFiPermission", "Requesting permissions: $permissions")
+            requestPermissions(permissions.toTypedArray(), LOCATION_PERMISSION_REQUEST_CODE)
+        } else {
+            Log.d("WiFiPermission", "All permissions granted, starting scan")
+            startWifiScan()
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -85,10 +112,23 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
     ) {
         when (requestCode) {
             LOCATION_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("WiFiPermission", "Permission result: ${grantResults.contentToString()}")
+
+                // Cek apakah semua permission diberikan
+                var allGranted = true
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        allGranted = false
+                        break
+                    }
+                }
+
+                if (allGranted && grantResults.isNotEmpty()) {
+                    Log.d("WiFiPermission", "All permissions granted")
                     startWifiScan()
                 } else {
-                    Toast.makeText(requireContext(), "Izin lokasi diperlukan untuk memindai WiFi", Toast.LENGTH_SHORT).show()
+                    Log.d("WiFiPermission", "Some permissions denied")
+                    Toast.makeText(requireContext(), "Izin lokasi dan WiFi diperlukan untuk memindai WiFi", Toast.LENGTH_LONG).show()
                 }
                 return
             }
@@ -98,16 +138,29 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         }
     }
 
+    // TAMBAHKAN LOGGING KE METHOD INI
     private fun startWifiScan() {
+        Log.d("WiFiScan", "Starting WiFi scan...")
+        Log.d("WiFiScan", "WiFi enabled: ${wifiManager.isWifiEnabled}")
+        Log.d("WiFiScan", "Android version: ${android.os.Build.VERSION.SDK_INT}")
+
         adapter.clear()
         wifiScanResults.clear()
         progressBarWifi.visibility = View.VISIBLE
-        requireActivity().registerReceiver(
-            wifiScanReceiver,
-            IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        )
-        wifiManager.startScan()
-        Toast.makeText(requireContext(), "Memindai jaringan WiFi...", Toast.LENGTH_SHORT).show()
+
+        try {
+            requireActivity().registerReceiver(
+                wifiScanReceiver,
+                IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+            )
+            val scanStarted = wifiManager.startScan()
+            Log.d("WiFiScan", "Scan started: $scanStarted")
+            Toast.makeText(requireContext(), "Memindai jaringan WiFi...", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e("WiFiScan", "Error starting scan: ${e.message}")
+            progressBarWifi.visibility = View.GONE
+            Toast.makeText(requireContext(), "Error memulai scan WiFi", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun scanSuccess() {
@@ -182,18 +235,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
 
             linearWifi.visibility = View.VISIBLE
 
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    LOCATION_PERMISSION_REQUEST_CODE
-                )
-            } else {
-                startWifiScan()
-            }
+            checkAndRequestPermissions()
         }
 
 
