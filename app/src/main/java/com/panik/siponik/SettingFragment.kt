@@ -39,6 +39,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import android.os.Handler
+import android.os.Looper
 
 class SettingFragment : Fragment(), FirebaseRefreshable  {
     private lateinit var auth: FirebaseAuth
@@ -61,15 +63,19 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
     private val wifiScanResults = mutableListOf<ScanResult>()
     private lateinit var linearWifi: LinearLayout
 
-
     private lateinit var progressBarWifi: ProgressBar
 
-
-    private val LOCATION_PERMISSION_REQUEST_CODE = 123
+    // Updated permission constants
+    private val WIFI_PERMISSION_REQUEST_CODE = 123
     private lateinit var changeWifiButton: CardView
+
+    // Handler untuk timeout scan
+    private val scanHandler = Handler(Looper.getMainLooper())
+    private var scanTimeoutRunnable: Runnable? = null
 
     private val wifiScanReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            Log.d("WiFiScan", "Broadcast received: ${intent.action}")
             val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
             if (success) {
                 scanSuccess()
@@ -79,16 +85,31 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         }
     }
 
-    // METHOD BARU - TAMBAHKAN INI
+    // Updated permission check for all Android versions
     private fun checkAndRequestPermissions() {
         val permissions = mutableListOf<String>()
 
+        // Location permission always required for WiFi scanning
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
-        // Untuk Android 13+
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        // For Android 10+ (API 29+)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+                // Note: ACCESS_BACKGROUND_LOCATION might not be needed for foreground scanning
+                // but some devices require it
+            }
+        }
+
+        // For Android 13+ (API 33+)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.NEARBY_WIFI_DEVICES)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -98,7 +119,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
 
         if (permissions.isNotEmpty()) {
             Log.d("WiFiPermission", "Requesting permissions: $permissions")
-            requestPermissions(permissions.toTypedArray(), LOCATION_PERMISSION_REQUEST_CODE)
+            requestPermissions(permissions.toTypedArray(), WIFI_PERMISSION_REQUEST_CODE)
         } else {
             Log.d("WiFiPermission", "All permissions granted, starting scan")
             startWifiScan()
@@ -111,24 +132,40 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         grantResults: IntArray
     ) {
         when (requestCode) {
-            LOCATION_PERMISSION_REQUEST_CODE -> {
-                Log.d("WiFiPermission", "Permission result: ${grantResults.contentToString()}")
+            WIFI_PERMISSION_REQUEST_CODE -> {
+                Log.d("WiFiPermission", "Permission result received")
+                Log.d("WiFiPermission", "Permissions: ${permissions.contentToString()}")
+                Log.d("WiFiPermission", "Results: ${grantResults.contentToString()}")
 
-                // Cek apakah semua permission diberikan
-                var allGranted = true
-                for (result in grantResults) {
-                    if (result != PackageManager.PERMISSION_GRANTED) {
-                        allGranted = false
-                        break
+                var hasLocationPermission = false
+                var hasWifiPermission = true // Default true for older Android versions
+
+                // Check specific permissions
+                for (i in permissions.indices) {
+                    when (permissions[i]) {
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION -> {
+                            if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                                hasLocationPermission = true
+                            }
+                        }
+                        Manifest.permission.NEARBY_WIFI_DEVICES -> {
+                            hasWifiPermission = grantResults[i] == PackageManager.PERMISSION_GRANTED
+                        }
                     }
                 }
 
-                if (allGranted && grantResults.isNotEmpty()) {
-                    Log.d("WiFiPermission", "All permissions granted")
+                if (hasLocationPermission && hasWifiPermission) {
+                    Log.d("WiFiPermission", "Required permissions granted")
                     startWifiScan()
                 } else {
-                    Log.d("WiFiPermission", "Some permissions denied")
-                    Toast.makeText(requireContext(), "Izin lokasi dan WiFi diperlukan untuk memindai WiFi", Toast.LENGTH_LONG).show()
+                    Log.d("WiFiPermission", "Required permissions denied")
+                    Toast.makeText(
+                        requireContext(),
+                        "Izin lokasi dan WiFi diperlukan untuk memindai jaringan WiFi",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    progressBarWifi.visibility = View.GONE
                 }
                 return
             }
@@ -138,48 +175,147 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         }
     }
 
-    // TAMBAHKAN LOGGING KE METHOD INI
     private fun startWifiScan() {
         Log.d("WiFiScan", "Starting WiFi scan...")
         Log.d("WiFiScan", "WiFi enabled: ${wifiManager.isWifiEnabled}")
         Log.d("WiFiScan", "Android version: ${android.os.Build.VERSION.SDK_INT}")
 
+        if (!wifiManager.isWifiEnabled) {
+            Toast.makeText(requireContext(), "WiFi tidak aktif. Silakan aktifkan WiFi terlebih dahulu.", Toast.LENGTH_LONG).show()
+            progressBarWifi.visibility = View.GONE
+            return
+        }
+
+        // Clear previous results
         adapter.clear()
         wifiScanResults.clear()
         progressBarWifi.visibility = View.VISIBLE
 
         try {
-            requireActivity().registerReceiver(
-                wifiScanReceiver,
-                IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-            )
+            // Register receiver
+            val intentFilter = IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
+            requireActivity().registerReceiver(wifiScanReceiver, intentFilter)
+
+            // Set timeout for scan
+            scanTimeoutRunnable = Runnable {
+                Log.w("WiFiScan", "Scan timeout reached")
+                scanFailure()
+            }
+            scanHandler.postDelayed(scanTimeoutRunnable!!, 15000) // 15 second timeout
+
+            // Start scan
             val scanStarted = wifiManager.startScan()
             Log.d("WiFiScan", "Scan started: $scanStarted")
-            Toast.makeText(requireContext(), "Memindai jaringan WiFi...", Toast.LENGTH_SHORT).show()
+
+            if (scanStarted) {
+                Toast.makeText(requireContext(), "Memindai jaringan WiFi...", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.w("WiFiScan", "Failed to start scan, trying to get cached results")
+                // If scan fails, try to get cached results
+                scanHandler.postDelayed({
+                    getCachedScanResults()
+                }, 1000)
+            }
+
         } catch (e: Exception) {
             Log.e("WiFiScan", "Error starting scan: ${e.message}")
             progressBarWifi.visibility = View.GONE
-            Toast.makeText(requireContext(), "Error memulai scan WiFi", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error memulai scan WiFi: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getCachedScanResults() {
+        Log.d("WiFiScan", "Getting cached scan results")
+        try {
+            val results = wifiManager.scanResults ?: emptyList()
+            Log.d("WiFiScan", "Found ${results.size} cached networks")
+
+            if (results.isNotEmpty()) {
+                wifiScanResults.clear()
+                wifiScanResults.addAll(results)
+
+                val ssids = results.map {
+                    if (it.SSID.isNotEmpty()) it.SSID else "<Hidden Network>"
+                }
+
+                adapter.clear()
+                adapter.addAll(ssids)
+                adapter.notifyDataSetChanged()
+
+                progressBarWifi.visibility = View.GONE
+                Toast.makeText(requireContext(), "Menampilkan hasil scan sebelumnya", Toast.LENGTH_SHORT).show()
+            } else {
+                scanFailure()
+            }
+        } catch (e: Exception) {
+            Log.e("WiFiScan", "Error getting cached results: ${e.message}")
+            scanFailure()
         }
     }
 
     private fun scanSuccess() {
-        requireActivity().unregisterReceiver(wifiScanReceiver)
+        Log.d("WiFiScan", "Scan successful")
+
+        // Cancel timeout
+        scanTimeoutRunnable?.let { scanHandler.removeCallbacks(it) }
+
+        try {
+            requireActivity().unregisterReceiver(wifiScanReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.w("WiFiScan", "Receiver not registered: ${e.message}")
+        }
+
         progressBarWifi.visibility = View.GONE
-        val results = wifiManager?.scanResults ?: emptyList()
-        wifiScanResults.addAll(results)
-        val ssids = results.map { it.SSID }
-        adapter.addAll(ssids)
-        adapter.notifyDataSetChanged()
+
+        try {
+            val results = wifiManager.scanResults ?: emptyList()
+            Log.d("WiFiScan", "Found ${results.size} networks")
+
+            wifiScanResults.clear()
+            wifiScanResults.addAll(results)
+
+            val ssids = results.map {
+                if (it.SSID.isNotEmpty()) it.SSID else "<Hidden Network>"
+            }
+
+            adapter.clear()
+            adapter.addAll(ssids)
+            adapter.notifyDataSetChanged()
+
+            if (results.isEmpty()) {
+                Toast.makeText(requireContext(), "Tidak ada jaringan WiFi ditemukan", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e("WiFiScan", "Error processing scan results: ${e.message}")
+            Toast.makeText(requireContext(), "Error memproses hasil scan", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun scanFailure() {
-        requireActivity().unregisterReceiver(wifiScanReceiver)
+        Log.d("WiFiScan", "Scan failed")
+
+        // Cancel timeout
+        scanTimeoutRunnable?.let { scanHandler.removeCallbacks(it) }
+
+        try {
+            requireActivity().unregisterReceiver(wifiScanReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.w("WiFiScan", "Receiver not registered: ${e.message}")
+        }
+
         progressBarWifi.visibility = View.GONE
         Toast.makeText(requireContext(), "Gagal memindai jaringan WiFi", Toast.LENGTH_SHORT).show()
+
+        // Try to get cached results as fallback
+        getCachedScanResults()
     }
 
     private fun connectToESP8266AP(ssid: String) {
+        if (ssid == "<Hidden Network>") {
+            Toast.makeText(requireContext(), "Tidak dapat terhubung ke jaringan tersembunyi", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val intent = Intent(requireContext(), WifiFormActivity::class.java)
         intent.putExtra("esp_ssid", ssid)
         startActivity(intent)
@@ -187,13 +323,18 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Penting untuk unregister receiver saat view dihancurkan untuk menghindari memory leaks
+
+        // Cancel any pending timeout
+        scanTimeoutRunnable?.let { scanHandler.removeCallbacks(it) }
+
+        // Unregister receiver if still registered
         try {
             requireActivity().unregisterReceiver(wifiScanReceiver)
         } catch (e: IllegalArgumentException) {
-            // Receiver mungkin belum terdaftar jika pemindaian tidak pernah dimulai
+            // Receiver not registered, ignore
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -234,14 +375,14 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
             }
 
             linearWifi.visibility = View.VISIBLE
-
             checkAndRequestPermissions()
         }
 
-
         wifiList.setOnItemClickListener { _, _, position, _ ->
-            val selectedSSID = wifiScanResults[position].SSID
-            connectToESP8266AP(selectedSSID)
+            if (position < wifiScanResults.size) {
+                val selectedSSID = wifiScanResults[position].SSID
+                connectToESP8266AP(selectedSSID)
+            }
         }
 
         // Inisialisasi SharedPreferences
@@ -271,6 +412,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
             )
             dialog.show(parentFragmentManager, "CustomDialog")
         }
+
         // Logout
         btnLogout.setOnClickListener{
             val dialog = CustomDialogFragment(
@@ -287,11 +429,9 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                     val googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
 
                     googleSignInClient.signOut().addOnCompleteListener {
-                        // 3. Hapus sesi lokal jika ada
                         val sharedPref = requireContext().getSharedPreferences("UserSession", AppCompatActivity.MODE_PRIVATE)
                         sharedPref.edit().clear().apply()
 
-                        // 4. Arahkan ke login screen
                         val intent = Intent(requireContext(), LoginActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
@@ -303,10 +443,10 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                 }
             )
             dialog.show(parentFragmentManager, "CustomDialog")
-//
         }
     }
 
+    // Rest of your existing methods remain the same...
     override fun refreshFirebaseData() {
         val currentUser = auth.currentUser
         val userId = currentUser?.uid
@@ -317,7 +457,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                 for (child in snapshot.children) {
                     val userIdFromDb = child.child("UserInfo/userId").value.toString()
                     if (userIdFromDb == userId) {
-                        val userPath = child.key // Dapatkan key dari user yang sesuai
+                        val userPath = child.key
 
                         if (userPath != null) {
                             dataUser = child.child("UserInfo/ID ESP").value.toString()
@@ -327,7 +467,7 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                             tvUserID.text = dataEmail
                             tvSSID.text = dataSSID
                         }
-                        break // Hentikan loop setelah menemukan user yang cocok
+                        break
                     }
                 }
             }
@@ -353,19 +493,16 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
             return
         }
 
-        // Tampilkan dialog input password dulu
         val dialog = CustomDialogFragment(
             title = "Masukkan Password",
             message = "Masukkan password Anda untuk konfirmasi.",
             showInputField = true,
             onContinue = { password ->
 
-                val credential = EmailAuthProvider.getCredential(user.email ?: "", password.toString()
-                )
+                val credential = EmailAuthProvider.getCredential(user.email ?: "", password.toString())
 
                 user.reauthenticate(credential)
                     .addOnSuccessListener {
-                        // Jika reauth sukses, hapus data database terlebih dahulu
                         database.child("Siponik").get().addOnSuccessListener { snapshot ->
                             var found = false
 
@@ -376,7 +513,6 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
 
                                     espSnapshot.ref.removeValue().addOnCompleteListener { removeTask ->
                                         if (removeTask.isSuccessful) {
-                                            // Setelah hapus database, hapus user auth
                                             user.delete()
                                                 .addOnSuccessListener { onSuccess() }
                                                 .addOnFailureListener { e -> onFailure("Gagal hapus akun: ${e.message}") }
@@ -406,8 +542,6 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
         dialog.show(fragmentManager, "CustomDialog")
     }
 
-
-
     fun reauthenticateIfNeeded(
         fragmentManager: FragmentManager,
         user: FirebaseUser,
@@ -434,7 +568,6 @@ class SettingFragment : Fragment(), FirebaseRefreshable  {
                 .addOnFailureListener { e -> onFailure("Gagal hapus akun: ${e.message}") }
         }
     }
-
 
     fun showPasswordInputDialog(fragmentManager: FragmentManager, onPasswordEntered: (String) -> Unit) {
         val dialog = CustomDialogFragment(
